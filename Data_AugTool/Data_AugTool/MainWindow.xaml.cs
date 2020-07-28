@@ -18,6 +18,10 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using OpenCvSharp;
 using Data_AugTool.Model;
 using OpenCvSharp.Extensions;
+using System.Windows.Media.Effects;
+using System.Drawing.Drawing2D;
+using OpenCvSharp.Tracking;
+using System.Data.SqlClient;
 
 namespace Data_AugTool
 {
@@ -27,31 +31,27 @@ namespace Data_AugTool
     public partial class MainWindow : System.Windows.Window
     {
 
-        Augmentation augmentation = new Augmentation();
+
         private List<AlbumentationInfo> AlbumentationInfos = new List<AlbumentationInfo>();
         public MainWindow()
         {
             InitializeComponent();
-            var contrast = new AlbumentationInfo()
+        
+            AlbumentationInfos.AddRange(new List<AlbumentationInfo>()
             {
-                IsChecked = false,
-                IsUseValueMax = true,
-                IsUseValueMin = true,
-                TypeName = "Contrast",
-                ValueMin = 0.0,
-                ValueMax = 1.0
-            };
-            var brightness = new AlbumentationInfo()
-            {
-                IsChecked = false,
-                IsUseValueMax = true,
-                IsUseValueMin = true,
-                TypeName = "Brightness",
-                ValueMin = -100.0,
-                ValueMax = 100.0
-            };
-            AlbumentationInfos.Add(contrast);
-            AlbumentationInfos.Add(brightness);
+                new AlbumentationInfo("Contrast", 0.0, 1.0),
+                new AlbumentationInfo("Brightness", -100.0, 100.0),
+                new AlbumentationInfo("Blur", 0, 1),
+                new AlbumentationInfo("Rotation"),
+                new AlbumentationInfo("Rotation90"),
+                new AlbumentationInfo("Horizontal Flip"),
+                new AlbumentationInfo("Vertical Flip"),
+                new AlbumentationInfo("Translation"),
+                new AlbumentationInfo("Noise", 0.0, 2.0),
+                new AlbumentationInfo("CropResize"),
+
+            }); 
+
             AlbumentationListBox.ItemsSource = AlbumentationInfos;
         }
 
@@ -63,8 +63,7 @@ namespace Data_AugTool
         string[] files;
 
         //<!-- Image listview & orginal Image Viewer with Input URL shown -->
-
-        private void btnLoadFromFile_Click(object sender, RoutedEventArgs e)
+                private void btnLoadFromFile_Click(object sender, RoutedEventArgs e)
         {
             string path;
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
@@ -96,15 +95,9 @@ namespace Data_AugTool
                 Test.BeginInit();
                 Test.UriSource = new Uri(openFileDialog.FileName);
                 Test.EndInit();
-                //Uri fileUri = new Uri(openFileDialog.FileName);
                 Dynamic2.Source = Test;
             }
-            double a = 0; ;
-            Mat mat = new Mat();
-            Mat outputMat;
-
-            outputMat = augmentation.GetRotationImage(mat, a);
-
+         
 
         }
 
@@ -134,6 +127,8 @@ namespace Data_AugTool
                 return;
 
             var listBoxSelectedItem = listbox.SelectedItem as AlbumentationInfo;
+            if (listBoxSelectedItem == null)
+                return;
 
             var selectedImageInfo = ListView1.SelectedItem as ImageInfo;
             if (selectedImageInfo == null)
@@ -144,6 +139,9 @@ namespace Data_AugTool
             Mat previewMat = new Mat();
 
             //ui_PreviewImage.Source = new BitmapImage(new Uri(selectedImageInfo.ImageName));
+
+
+
             switch (listBoxSelectedItem.TypeName)
             {
                 case "Brightness":
@@ -152,10 +150,43 @@ namespace Data_AugTool
                 case "Contrast":
                     Cv2.AddWeighted(orgMat, listBoxSelectedItem.ValueMin, orgMat, 0, 0, previewMat);
                     break;
+                case "Blur":
+                    Cv2.GaussianBlur(orgMat, previewMat , new OpenCvSharp.Size(9, 9), listBoxSelectedItem.ValueMin, 1, BorderTypes.Default);
+                    break;
+                case "Rotation":
+                    Mat matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), listBoxSelectedItem.ValueMin, 1.0);
+                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height));
+                    break;
+                case "Rotation90":
+                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
+                    break;
+                case "Horizontal Flip":
+                    Cv2.Flip(orgMat, previewMat, listBoxSelectedItem.ValueMin, MatType.CV_8SC3);
+
+                    break;
+                case "Vertical Flip":
+                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
+                    break;
+                case "Noise":
+                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
+                    break;
+                case "Translation":
+                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
+                    break;
+                case "CropResize":
+                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
+                    break;
+
                 default:
                     break;
+
             }
             ui_PreviewImage.Source = previewMat.ToBitmapSource();
+
+        }
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdatePreviewImage();
         }
     }
     public class ImageInfo

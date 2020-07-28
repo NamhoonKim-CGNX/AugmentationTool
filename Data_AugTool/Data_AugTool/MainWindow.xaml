@@ -74,9 +74,10 @@
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding TypeName}" Width="100"/>
-                            <TextBox Text="{Binding ValueMin}" Width="40" Margin="5 0 5 0" BorderThickness="3" HorizontalContentAlignment="Right" />
-                            <TextBox Text="{Binding ValueMax}" Width="40" Margin="0 0 5 0" BorderThickness="3" HorizontalContentAlignment="Right" />
-                            <CheckBox IsChecked="{Binding IsChecked}" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding ValueMin, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="5 0 5 0" BorderThickness="3" HorizontalContentAlignment="Right"
+                                      TextChanged="TextBox_TextChanged"/>
+                            <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="0 0 5 0" BorderThickness="3" HorizontalContentAlignment="Right" />
+                            <CheckBox IsChecked="{Binding IsChecked, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
