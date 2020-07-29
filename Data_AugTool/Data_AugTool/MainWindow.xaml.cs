@@ -22,6 +22,8 @@ using System.Windows.Media.Effects;
 using System.Drawing.Drawing2D;
 using OpenCvSharp.Tracking;
 using System.Data.SqlClient;
+using System.Windows.Media.TextFormatting;
+using System.Net;
 
 namespace Data_AugTool
 {
@@ -46,12 +48,17 @@ namespace Data_AugTool
                 new AlbumentationInfo("Rotation90"),
                 new AlbumentationInfo("Horizontal Flip"),
                 new AlbumentationInfo("Vertical Flip"),
-                new AlbumentationInfo("Translation"),
                 new AlbumentationInfo("Noise", 0.0, 2.0),
-                new AlbumentationInfo("CropResize"),
-                
+                new AlbumentationInfo("Zoom In"),
+                new AlbumentationInfo("Sharpen"),
+                new AlbumentationInfo("ColorWise"),
+                new AlbumentationInfo("Gradiation"),
+                new AlbumentationInfo("Distortion"),
 
-            }); 
+
+
+            }
+                ); 
 
             AlbumentationListBox.ItemsSource = AlbumentationInfos;
         }
@@ -86,7 +93,6 @@ namespace Data_AugTool
             Dynamic2.Source = new BitmapImage(new Uri(items[0].ImageName));
         }
 
-
         private void btnLoadFromOutput_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -98,7 +104,6 @@ namespace Data_AugTool
                 Test.EndInit();
                 Dynamic2.Source = Test;
             }
-         
 
         }
 
@@ -140,12 +145,9 @@ namespace Data_AugTool
             Mat previewMat = new Mat();
 
             //ui_PreviewImage.Source = new BitmapImage(new Uri(selectedImageInfo.ImageName));
-
-
-
+            Mat matrix;
             switch (listBoxSelectedItem.TypeName)
             {
-
                 case "Contrast":
                     Cv2.AddWeighted(orgMat, listBoxSelectedItem.ValueMin, orgMat, 0, 0, previewMat);
                     break;
@@ -156,29 +158,46 @@ namespace Data_AugTool
                     Cv2.GaussianBlur(orgMat, previewMat , new OpenCvSharp.Size(9, 9), listBoxSelectedItem.ValueMin, 1, BorderTypes.Default);
                     break;
                 case "Rotation":
-                    Mat matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), listBoxSelectedItem.ValueMin, 1.0);
-                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height));
+                    matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), listBoxSelectedItem.ValueMin, 1.0);
+                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Cubic);
                     break;
                 case "Rotation90":
-                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
+                    matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), 90, 1.0);
+                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Cubic);
                     break;
                 case "Horizontal Flip":
-                    //Cv2.Flip(orgMat, previewMat, listBoxSelectedItem.ValueMin, previewMat, FlipMode.Y);
+                    Cv2.Flip(orgMat, previewMat, FlipMode.Y);
                     break;
                 case "Vertical Flip":
-                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
-                    break;
-                case "Translation":
-                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
+                    Cv2.Flip(orgMat, previewMat, FlipMode.X);
                     break;
                 case "Noise":
+                    matrix = new Mat(orgMat.Size() ,MatType.CV_8UC3);
+                    Cv2.Randn(matrix, Scalar.All(0), Scalar.All(50));         //정규분포를 나타내는 이미지를 랜덤하게 생성
+                    Cv2.AddWeighted(orgMat, 1, matrix, 1, 0, previewMat);     //두 이미지를 가중치를 설정하여 합침
+                    break;
+                case "Zoom In":
+                    Cv2.PyrDown(orgMat, previewMat);
+
+                    break;
+
+                case "Sharpen":
+                    float[] data = new float[9] { -1, -1, -1, -1, 9, -1, -1, -1, -1 };
+                    Mat kernel = new Mat(3, 3, MatType.CV_8S, data);
+                    //Cv2.Filter2D(orgMat, previewMat, MatType.CV_8SC3, kernel, new OpenCvSharp.Point(0, 0));
+                    Cv2.AddWeighted(orgMat, 1.5, kernel, 00.5, 0, previewMat);
+                 
+                    break;
+                case "ColorWise":
                     Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
                     break;
-                case "CropResize":
+                case "Gradiation":
+                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
+                    break;
+                case "Distortion":
                     Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
                     break;
 
-    
                 default:
                     break;
 
