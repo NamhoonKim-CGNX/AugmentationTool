@@ -49,6 +49,7 @@ namespace Data_AugTool
                 new AlbumentationInfo("Translation"),
                 new AlbumentationInfo("Noise", 0.0, 2.0),
                 new AlbumentationInfo("CropResize"),
+                
 
             }); 
 
@@ -144,11 +145,12 @@ namespace Data_AugTool
 
             switch (listBoxSelectedItem.TypeName)
             {
-                case "Brightness":
-                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
-                    break;
+
                 case "Contrast":
                     Cv2.AddWeighted(orgMat, listBoxSelectedItem.ValueMin, orgMat, 0, 0, previewMat);
+                    break;
+                case "Brightness":
+                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
                     break;
                 case "Blur":
                     Cv2.GaussianBlur(orgMat, previewMat , new OpenCvSharp.Size(9, 9), listBoxSelectedItem.ValueMin, 1, BorderTypes.Default);
@@ -161,22 +163,22 @@ namespace Data_AugTool
                     Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
                     break;
                 case "Horizontal Flip":
-                    Cv2.Flip(orgMat, previewMat, listBoxSelectedItem.ValueMin, MatType.CV_8SC3);
-
+                    //Cv2.Flip(orgMat, previewMat, listBoxSelectedItem.ValueMin, previewMat, FlipMode.Y);
                     break;
                 case "Vertical Flip":
                     Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
                     break;
-                case "Noise":
+                case "Translation":
                     Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
                     break;
-                case "Translation":
+                case "Noise":
                     Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
                     break;
                 case "CropResize":
                     Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
                     break;
 
+    
                 default:
                     break;
 
