@@ -1,19 +1,20 @@
-﻿<Window x:Class="Data_AugTool.MainWindow"
+﻿<mah:MetroWindow x:Class="Data_AugTool.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:local="clr-namespace:Data_AugTool"
         mc:Ignorable="d"
         Title="Deep Learning Augmentation Data Tool" Height="1000" Width="1700">
 
-    <Grid Background="Black" Margin="4,0,-4,0">
+    <Grid Margin="4,0,-4,0" ShowGridLines="True">
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="158*"/>
-            <ColumnDefinition Width="18*"/>
-            <ColumnDefinition Width="136*"/>
-            <ColumnDefinition Width="111*"/>
+            <ColumnDefinition Width="316*"/>
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="283*"/>
+            <ColumnDefinition Width="222*"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -23,60 +24,53 @@
             <RowDefinition Height="183*"/>
         </Grid.RowDefinitions>
 
-        <!-- 상단 Grid 영역 -->
-        <Label Grid.Column="0" Grid.Row="0" Margin="15,0" Grid.ColumnSpan="2"/>
-        <Label Grid.Column="3" Grid.Row="0" Margin="249,0,19,0"/>
-        <Label Grid.Column="3" Grid.Row="0" Margin="10,0"/>
-
-        <!-- 중간 Grid 영역 -->
-        <Label Grid.Column="0" Grid.Row="1" Margin="0,0,46,0" Grid.RowSpan="2" Grid.ColumnSpan="2"/>
-
-        <!-- Button Input & Output 영역 -->
-        <Button x:Name="btnLoadFromInput" Content="Input" Click="btnLoadFromFile_Click" Margin="336,18,38,110" Grid.Row="3" Grid.Column="2" FontWeight="Bold" FontSize="18" RenderTransformOrigin="-0.145,0.632"/>
-        <Button x:Name="btnLoadFromOutput" Content="Output" Click="btnLoadFromOutput_Click" Margin="336,84,38,41" Grid.Row="3" Grid.Column="2" FontWeight="Bold" FontSize="18"/>
+        <TextBlock Text="Image List" Width="200" HorizontalAlignment="Left" Margin="20,12,0,10" FontWeight="Bold" FontSize="24" FontFamily="Arial Black" />
 
         <!-- List View 영역 -->
-        <ListView x:Name="ListView1" VirtualizingPanel.IsVirtualizing="True"  ItemsSource="{Binding ListViewItemsCollections}" SelectionChanged="ListView1_SelectionChanged_1" Margin="10,10,0,10" Grid.Row="1" Grid.RowSpan="2">
+        <ListView x:Name="ListView1" VirtualizingPanel.IsVirtualizing="True"  ItemsSource="{Binding ListViewItemsCollections}" SelectionChanged="ListView1_SelectionChanged_1" Margin="0,10,10,10" Grid.Row="1" Grid.RowSpan="2">
 
             <ListView.View>
                 <GridView AllowsColumnReorder="False">
-                    <GridViewColumn  Header="No" Width="100" DisplayMemberBinding="{Binding ImageNumber}" />
+                    <GridViewColumn  Header="No" Width="35" DisplayMemberBinding="{Binding ImageNumber}" />
                     <GridViewColumn  Header="File Name" Width="600" DisplayMemberBinding="{Binding ImageName}" />
                 </GridView>
             </ListView.View>
         </ListView>
 
 
-        <!-- Input Image viewer section -->
-        <Border BorderThickness="10" BorderBrush="Yellow" Margin="10,30,10,10" Grid.Column="2" Grid.Row="1">
-            <Image x:Name="Dynamic2" Width="504" />
-
-        </Border>
-
-
-        <!-- Output Image viewer section -->
-        <Border BorderThickness="10" BorderBrush="Yellow" Margin="10,36,10,6" Grid.Column="2" Grid.Row="2" >
-            <Image x:Name="ui_PreviewImage" Width="504"/>
-        </Border>
-
+        <!-- Button Input 영역 -->
+        <Button x:Name="btnLoadFromInput" Content="Input" Click="btnLoadFromFile_Click" Margin="336,18,38,110" Grid.Row="3" Grid.Column="2" FontWeight="Bold" FontSize="18" RenderTransformOrigin="-0.145,0.632"/>
         <!-- Input Image viewer URL -->
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="38" Margin="20,27,0,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Top" Width="937" Grid.ColumnSpan="3"/>
+        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="38" Margin="10,30,0,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Top" Width="937" Grid.ColumnSpan="3"/>
+        <!-- Input List -->
+        <TextBlock Text="Original Image" Width="150" HorizontalAlignment="Left" Margin="10,10,0,330" Grid.Column="2" Grid.Row="1" FontWeight="Bold" FontSize="15" FontFamily="Arial Black"/>
+        <!-- Input Image viewer section -->
+        <Border BorderThickness="2" BorderBrush="Yellow" Margin="10,40,10,10" Grid.Column="2" Grid.Row="1">
+            <Image x:Name="Dynamic2" Width="500" />
+        </Border>
+
+        <!-- Button OutPut 영역 -->
+        <Button x:Name="btnLoadFromOutput" Content="Output" Click="btnLoadFromOutput_Click" Margin="336,84,38,41" Grid.Row="3" Grid.Column="2" FontWeight="Bold" FontSize="18"/>
+
         <!-- Ouput Image viewer URL -->
-        <TextBox x:Name="textBox2" HorizontalAlignment="Left" Height="38" Margin="20,91,0,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Top" Width="937" Grid.ColumnSpan="3"/>
+        <TextBox x:Name="textBox2" HorizontalAlignment="Left" Height="38" Margin="10,90,0,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Top" Width="937" Grid.ColumnSpan="3"/>
+        <!-- Ouput List -->
+        <TextBlock Text="Preview Image" Width="150" HorizontalAlignment="Left" Margin="10,10,0,330" Grid.Column="2" Grid.Row="2" FontWeight="Bold" FontSize="15" FontFamily="Arial Black"/>
+        <!-- Output Image viewer section -->
+        <Border BorderThickness="2" BorderBrush="Yellow" Margin="10,40,10,10" Grid.Column="2" Grid.Row="2" >
+            <Image x:Name="ui_PreviewImage" Width="500"/>
+        </Border>
 
-        <TextBox Text="Original Image" Width="100" HorizontalAlignment="Left" Margin="10,12,0,337" Grid.Column="2" Grid.Row="1" FontWeight="Bold"/>
-        <TextBox Text="Image List" Width="200" HorizontalAlignment="Left" Margin="20,12,0,17"/>
-        <TextBox Text="Preview Image" Width="100" HorizontalAlignment="Left" Margin="10,5,0,344" Grid.Column="2" Grid.Row="2" FontWeight="Bold"/>
 
-        <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Margin="5">
-            <ListBox x:Name="AlbumentationListBox" Margin="5" SelectionChanged="AlbumentationListBox_SelectionChanged">
+        <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Margin="1">
+            <ListBox x:Name="AlbumentationListBox" Margin="10" SelectionChanged="AlbumentationListBox_SelectionChanged">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding TypeName}" Width="100"/>
-                            <TextBox Text="{Binding ValueMin, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="5 0 5 0" BorderThickness="3" HorizontalContentAlignment="Right"
+                            <TextBlock Text="{Binding TypeName}" Width="250"/>
+                            <TextBox Text="{Binding ValueMin, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="3 0 10 3" BorderThickness="1" HorizontalContentAlignment="Right"
                                       TextChanged="TextBox_TextChanged"/>
-                            <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="0 0 5 0" BorderThickness="3" HorizontalContentAlignment="Right" />
+                            <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="3 0 15 3" BorderThickness="1" HorizontalContentAlignment="Right" />
                             <CheckBox IsChecked="{Binding IsChecked, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </DataTemplate>
@@ -86,4 +80,4 @@
 
     </Grid>
 
-</Window>
+</mah:MetroWindow>

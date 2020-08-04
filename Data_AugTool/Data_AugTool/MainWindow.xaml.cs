@@ -24,13 +24,16 @@ using OpenCvSharp.Tracking;
 using System.Data.SqlClient;
 using System.Windows.Media.TextFormatting;
 using System.Net;
+using MahApps.Metro.Controls;
+using System.Web.UI;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Data_AugTool
 {
     /// <summary>
     /// MainWindow.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class MainWindow : System.Windows.Window
+    public partial class MainWindow : MetroWindow
     {
 
 
@@ -51,9 +54,10 @@ namespace Data_AugTool
                 new AlbumentationInfo("Noise", 0.0, 2.0),
                 new AlbumentationInfo("Zoom In"),
                 new AlbumentationInfo("Sharpen"),
-                new AlbumentationInfo("ColorWise"),
                 new AlbumentationInfo("Gradation"),
-                new AlbumentationInfo("Distortion"),
+                new AlbumentationInfo("RandomBrightnessContrast"),
+                new AlbumentationInfo("IAASharpen"),
+                new AlbumentationInfo("CLAHE"),
 
             }
                 ); 
@@ -201,22 +205,24 @@ namespace Data_AugTool
                 case "Sharpen":
                     float[] data = new float[9] { -1, -1, -1, -1, 9, -1, -1, -1, -1 };
                     Mat kernel = new Mat(3, 3, MatType.CV_8S, data);
-                    //Cv2.Filter2D(orgMat, previewMat, MatType.CV_8SC3, kernel, new OpenCvSharp.Point(0, 0));
-                    Cv2.AddWeighted(orgMat, 1.5, kernel, 00.5, 0, previewMat);              
-                    break;
-
-                case "ColorWise":
-                    matrix = new Mat(orgMat.Size(), MatType.CV_8UC1);
-                    Cv2.CvtColor(orgMat, previewMat, ColorConversionCodes.BGR2GRAY);
+                    Cv2.AddWeighted(orgMat, 1.5, kernel, -0.9, 0, previewMat);              
                     break;
 
                 case "Gradation":
                     
                     break;
 
-                case "Distortion":
-                    
+ 
+                case "Random Brightness Contrast":
+
+
                     break;
+
+                case "CLAHE":
+
+
+                    break;
+
 
                 default:
                     break;
