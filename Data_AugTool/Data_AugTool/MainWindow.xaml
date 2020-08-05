@@ -6,7 +6,7 @@
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:local="clr-namespace:Data_AugTool"
         mc:Ignorable="d"
-        Title="Deep Learning Augmentation Data Tool" Height="1000" Width="1700">
+        Title="Deep Learning Augmentation Data Tool" Height="1000" Width="1700" FontWeight="Bold">
 
     <Grid Margin="4,0,-4,0" ShowGridLines="True">
 
@@ -15,6 +15,7 @@
             <ColumnDefinition Width="25*"/>
             <ColumnDefinition Width="283*"/>
             <ColumnDefinition Width="222*"/>
+ 
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -22,6 +23,7 @@
             <RowDefinition Height="368*"/>
             <RowDefinition Height="369*"/>
             <RowDefinition Height="183*"/>
+      
         </Grid.RowDefinitions>
 
         <TextBlock Text="Image List" Width="200" HorizontalAlignment="Left" Margin="20,12,0,10" FontWeight="Bold" FontSize="24" FontFamily="Arial Black" />
@@ -51,26 +53,25 @@
 
         <!-- Button OutPut 영역 -->
         <Button x:Name="btnLoadFromOutput" Content="Output" Click="btnLoadFromOutput_Click" Margin="336,84,38,41" Grid.Row="3" Grid.Column="2" FontWeight="Bold" FontSize="18"/>
-
         <!-- Ouput Image viewer URL -->
         <TextBox x:Name="textBox2" HorizontalAlignment="Left" Height="38" Margin="10,90,0,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Top" Width="937" Grid.ColumnSpan="3"/>
         <!-- Ouput List -->
         <TextBlock Text="Preview Image" Width="150" HorizontalAlignment="Left" Margin="10,10,0,330" Grid.Column="2" Grid.Row="2" FontWeight="Bold" FontSize="15" FontFamily="Arial Black"/>
         <!-- Output Image viewer section -->
-        <Border BorderThickness="2" BorderBrush="Yellow" Margin="10,40,10,10" Grid.Column="2" Grid.Row="2" >
+        <Border BorderThickness="2" BorderBrush="Yellow" Margin="10,40,10,10" Grid.Column="2" Grid.Row="2"  >
             <Image x:Name="ui_PreviewImage" Width="500"/>
         </Border>
 
 
-        <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Margin="1">
+    <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Margin="1">
             <ListBox x:Name="AlbumentationListBox" Margin="10" SelectionChanged="AlbumentationListBox_SelectionChanged">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding TypeName}" Width="250"/>
-                            <TextBox Text="{Binding ValueMin, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="3 0 10 3" BorderThickness="1" HorizontalContentAlignment="Right"
+                            <TextBlock Text="{Binding TypeName}" Width="180"/>
+                            <TextBox Text="{Binding ValueMin, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="2 0 5 3" BorderThickness="1" HorizontalContentAlignment="Right"
                                       TextChanged="TextBox_TextChanged"/>
-                            <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="3 0 15 3" BorderThickness="1" HorizontalContentAlignment="Right" />
+                            <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="2 0 10 3" BorderThickness="1" HorizontalContentAlignment="Right" />
                             <CheckBox IsChecked="{Binding IsChecked, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </DataTemplate>

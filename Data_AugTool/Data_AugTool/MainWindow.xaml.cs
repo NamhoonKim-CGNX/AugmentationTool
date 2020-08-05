@@ -235,6 +235,9 @@ namespace Data_AugTool
         {
             UpdatePreviewImage();
         }
+
+
+        }
     }
     public class ImageInfo
     {
@@ -242,4 +245,3 @@ namespace Data_AugTool
         public string ImageName { get; set; }
     }
 
-}
