@@ -4,18 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:util="clr-namespace:Data_AugTool.Util"
         xmlns:local="clr-namespace:Data_AugTool"
         mc:Ignorable="d"
-        Title="Deep Learning Augmentation Data Tool" Height="1000" Width="1700" FontWeight="Bold">
-
-    <Grid Margin="4,0,-4,0" ShowGridLines="True">
+        WindowStartupLocation="CenterScreen"
+        Title="Deep Learning Augmentation Data Tool" Height="1000" Width="1700">
+    <Window.Resources>
+        <util:MyBooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
+    </Window.Resources>
+    <Grid Margin="4,0,-4,0" ShowGridLines="False">
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="316*"/>
             <ColumnDefinition Width="25*"/>
             <ColumnDefinition Width="283*"/>
             <ColumnDefinition Width="222*"/>
- 
+
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -23,7 +27,7 @@
             <RowDefinition Height="368*"/>
             <RowDefinition Height="369*"/>
             <RowDefinition Height="183*"/>
-      
+
         </Grid.RowDefinitions>
 
         <TextBlock Text="Image List" Width="200" HorizontalAlignment="Left" Margin="20,12,0,10" FontWeight="Bold" FontSize="24" FontFamily="Arial Black" />
@@ -63,21 +67,36 @@
         </Border>
 
 
-    <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Margin="1">
+
+        <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Margin="1">
             <ListBox x:Name="AlbumentationListBox" Margin="10" SelectionChanged="AlbumentationListBox_SelectionChanged">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding TypeName}" Width="180"/>
-                            <TextBox Text="{Binding ValueMin, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="2 0 5 3" BorderThickness="1" HorizontalContentAlignment="Right"
-                                      TextChanged="TextBox_TextChanged"/>
-                            <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="2 0 10 3" BorderThickness="1" HorizontalContentAlignment="Right" />
+                            <TextBlock Text="{Binding TypeName}" Width="250" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding ValueMin, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="2 2 5 2" BorderThickness="1" HorizontalContentAlignment="Right"
+                                      VerticalAlignment="Center"
+                                      TextChanged="TextBox_TextChanged" IsEnabled="{Binding IsUseValueMin}"/>
+                            <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="2 2 10 2" BorderThickness="1" HorizontalContentAlignment="Right" 
+                                     IsEnabled="{Binding IsUseValueMax}"/>
                             <CheckBox IsChecked="{Binding IsChecked, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
         </Border>
+
+
+
+        <Grid Grid.Column="3" Grid.Row="3" Margin=" 0,-250, 0, 0">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Margin="2,5">
+                    <!--<Button Name="btnPreviousTab" Click="BtnPreviousTab_Click">Prev.</Button>
+                    <Button Name="btnNextTab" Click="BtnNextTab_Click">Next</Button>
+                    <Button Name="btnSelectedTab" Click="BtnSelectedTab_Click">Selected</Button>-->
+                </StackPanel>
+            </DockPanel>
+        </Grid>
 
     </Grid>
 

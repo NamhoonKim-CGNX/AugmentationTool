@@ -59,9 +59,11 @@ namespace Data_AugTool
                 new AlbumentationInfo("IAASharpen"),
                 new AlbumentationInfo("CLAHE"),
 
+            });
+            foreach (var item in AlbumentationInfos)
+            {
+                item.IsChecked= true;
             }
-                ); 
-
             AlbumentationListBox.ItemsSource = AlbumentationInfos;
         }
 
@@ -239,7 +241,11 @@ namespace Data_AugTool
 
         }
     }
-    public class ImageInfo
+
+
+
+
+public class ImageInfo
     {
         public int ImageNumber { get; set; }
         public string ImageName { get; set; }
