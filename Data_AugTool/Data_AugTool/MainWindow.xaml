@@ -66,8 +66,6 @@
             <Image x:Name="ui_PreviewImage" Width="500"/>
         </Border>
 
-
-
         <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Margin="1">
             <ListBox x:Name="AlbumentationListBox" Margin="10" SelectionChanged="AlbumentationListBox_SelectionChanged">
                 <ListBox.ItemTemplate>
@@ -77,7 +75,7 @@
                             <TextBox Text="{Binding ValueMin, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="2 2 5 2" BorderThickness="1" HorizontalContentAlignment="Right"
                                       VerticalAlignment="Center"
                                       TextChanged="TextBox_TextChanged" IsEnabled="{Binding IsUseValueMin}"/>
-                            <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="2 2 10 2" BorderThickness="1" HorizontalContentAlignment="Right" 
+                            <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Width="40" Margin="2 2 10 2" BorderThickness="1" HorizontalContentAlignment="Right" 
                                      IsEnabled="{Binding IsUseValueMax}"/>
                             <CheckBox IsChecked="{Binding IsChecked, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -86,16 +84,33 @@
             </ListBox>
         </Border>
 
-
-
-        <Grid Grid.Column="3" Grid.Row="3" Margin=" 0,-250, 0, 0">
+        <!-- Slider 영역 -->
+        <Grid Grid.Column="3" Grid.Row="3" Margin="20,-700, 20, 0">
             <DockPanel>
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Margin="2,5">
-                    <!--<Button Name="btnPreviousTab" Click="BtnPreviousTab_Click">Prev.</Button>
-                    <Button Name="btnNextTab" Click="BtnNextTab_Click">Next</Button>
-                    <Button Name="btnSelectedTab" Click="BtnSelectedTab_Click">Selected</Button>-->
-                </StackPanel>
+                <Slider Name="McScroller" Orientation="Horizontal"  
+                   Width ="250" Height="100"  
+                   Margin="20"  
+                   Maximum="100" Minimum="0" ValueChanged="McScroller_ValueChanged"/>
+                <TextBlock Width="150" Height="20" DockPanel.Dock="Right" Text ="{Binding ElementName=McScroller, Path=Value, UpdateSourceTrigger=PropertyChanged,StringFormat=Value {0:F2}}"/>
+                <DataGrid x:Name="DataGrid" Height="170" VerticalAlignment="Bottom" Width="330" Margin="20, -300, 20, 0"/>
             </DockPanel>
+
+            <Grid>
+                <DataGrid AutoGenerateColumns="False" Height="390" HorizontalAlignment="Left" Margin="-10 ,0 ,-10 ,0" Name="dataGrid1" VerticalAlignment="Bottom" Width="400" SelectionChanged="dataGrid1_SelectionChanged_1">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Option" Binding="{Binding Path=Option}"/>
+                        <DataGridTextColumn Header="Recipe" Binding="{Binding Path=Recipe}"/>
+                        <DataGridTextColumn Header="Minmum" Binding="{Binding Path=Minmum}"/>
+                        <DataGridTextColumn Header="Maxmum" Binding="{Binding Path=Maxmum}"/>
+                        <DataGridTextColumn Header="Random" Binding="{Binding Path=Random}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+
+
+
+
+
         </Grid>
 
     </Grid>

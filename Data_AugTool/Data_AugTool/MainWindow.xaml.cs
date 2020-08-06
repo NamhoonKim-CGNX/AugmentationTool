@@ -44,14 +44,14 @@ namespace Data_AugTool
         
             AlbumentationInfos.AddRange(new List<AlbumentationInfo>()
             {
-                new AlbumentationInfo("Contrast", 0.0, 1.0),
-                new AlbumentationInfo("Brightness", -100.0, 100.0),
-                new AlbumentationInfo("Blur", 0, 1),
-                new AlbumentationInfo("Rotation"),
+                new AlbumentationInfo("Contrast", 0.0, 2.0),
+                new AlbumentationInfo("Brightness", -50.0, 100.0),
+                new AlbumentationInfo("Blur", 0, 2),
+                new AlbumentationInfo("Rotation" , 0, 30),
                 new AlbumentationInfo("Rotation90"),
                 new AlbumentationInfo("Horizontal Flip"),
                 new AlbumentationInfo("Vertical Flip"),
-                new AlbumentationInfo("Noise", 0.0, 2.0),
+                new AlbumentationInfo("Noise", 0.0, 20.0),
                 new AlbumentationInfo("Zoom In"),
                 new AlbumentationInfo("Sharpen"),
                 new AlbumentationInfo("Gradation"),
@@ -128,6 +128,27 @@ namespace Data_AugTool
         private void AlbumentationListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdatePreviewImage();
+            UpdateSliderMinMax();
+        }
+
+        private void UpdateSliderMinMax()
+        {
+            var listbox = AlbumentationListBox as ListBox;
+            if (listbox == null)
+                return;
+
+            var slider = McScroller as Slider;
+            if (slider == null)
+                return;
+
+            var listBoxSelectedItem = listbox.SelectedItem as AlbumentationInfo;
+            if (listBoxSelectedItem == null)
+                return;
+
+            slider.Minimum = listBoxSelectedItem.ValueMin;
+            slider.Maximum = listBoxSelectedItem.ValueMax;
+
+            // slider.TickFrequency
         }
 
         private void UpdatePreviewImage()
@@ -144,6 +165,10 @@ namespace Data_AugTool
             if (selectedImageInfo == null)
                 return;
 
+            var slider = McScroller as Slider;
+            if (slider == null)
+                return;
+
             //var originalImage = new BitmapImage(new Uri(selectedImageInfo.ImageName));
             Mat orgMat = new Mat(selectedImageInfo.ImageName);
             Mat previewMat = new Mat();
@@ -153,16 +178,16 @@ namespace Data_AugTool
             switch (listBoxSelectedItem.TypeName)
             {
                 case "Contrast":
-                    Cv2.AddWeighted(orgMat, listBoxSelectedItem.ValueMin, orgMat, 0, 0, previewMat);
+                    Cv2.AddWeighted(orgMat, slider.Value, orgMat, 0, 0, previewMat);
                     break;
                 case "Brightness":
-                    Cv2.Add(orgMat, listBoxSelectedItem.ValueMin, previewMat);
+                    Cv2.Add(orgMat, slider.Value, previewMat);
                     break;
                 case "Blur":
-                    Cv2.GaussianBlur(orgMat, previewMat , new OpenCvSharp.Size(9, 9), listBoxSelectedItem.ValueMin, 1, BorderTypes.Default);
+                    Cv2.GaussianBlur(orgMat, previewMat , new OpenCvSharp.Size(9, 9), slider.Value, 1, BorderTypes.Default);
                     break;
                 case "Rotation":
-                    matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), listBoxSelectedItem.ValueMin, 1.0);
+                    matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), slider.Value, 1.0);
                     Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Cubic);
                     break;
                 case "Rotation90":
@@ -177,8 +202,8 @@ namespace Data_AugTool
                     break;
                 case "Noise":
                     matrix = new Mat(orgMat.Size() ,MatType.CV_8UC3);
-                    Cv2.Randn(matrix, Scalar.All(0), Scalar.All(50));         //정규분포를 나타내는 이미지를 랜덤하게 생성
-                    Cv2.AddWeighted(orgMat, 1, matrix, 1, 0, previewMat);     //두 이미지를 가중치를 설정하여 합침
+                    Cv2.Randn(matrix, Scalar.All(0), Scalar.All(slider.Value));         //정규분포를 나타내는 이미지를 랜덤하게 생성
+                    Cv2.AddWeighted(orgMat, 1, matrix, 1, 0, previewMat);           //두 이미지를 가중치를 설정하여 합침
                     break;
                 case "Zoom In":
                     //Cv2.PyrDown(orgMat, previewMat);
@@ -238,9 +263,28 @@ namespace Data_AugTool
             UpdatePreviewImage();
         }
 
+        private void StackPanel_Loaded(object sender, RoutedEventArgs e)
+        {            
+
+        }
+
+        private void McScroller_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            UpdatePreviewImage();
+        }
+
+        private void dataGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void dataGrid1_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
+        {
 
         }
     }
+
+ }
 
 
 
