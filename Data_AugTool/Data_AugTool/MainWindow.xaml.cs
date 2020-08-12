@@ -27,6 +27,7 @@ using System.Net;
 using MahApps.Metro.Controls;
 using System.Web.UI;
 using System.Security.Cryptography.X509Certificates;
+using System.Collections.ObjectModel;
 
 namespace Data_AugTool
 {
@@ -36,12 +37,13 @@ namespace Data_AugTool
     public partial class MainWindow : MetroWindow
     {
 
-
+        private Random RandomGenerator = new Random();
         private List<AlbumentationInfo> AlbumentationInfos = new List<AlbumentationInfo>();
+        private ObservableCollection<AlbumentationInfo> GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
         public MainWindow()
         {
             InitializeComponent();
-        
+
             AlbumentationInfos.AddRange(new List<AlbumentationInfo>()
             {
                 new AlbumentationInfo("Contrast", 0.0, 2.0),
@@ -184,7 +186,7 @@ namespace Data_AugTool
                     Cv2.Add(orgMat, slider.Value, previewMat);
                     break;
                 case "Blur":
-                    Cv2.GaussianBlur(orgMat, previewMat , new OpenCvSharp.Size(9, 9), slider.Value, 1, BorderTypes.Default);
+                    Cv2.GaussianBlur(orgMat, previewMat, new OpenCvSharp.Size(9, 9), slider.Value, 1, BorderTypes.Default);
                     break;
                 case "Rotation":
                     matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), slider.Value, 1.0);
@@ -201,59 +203,74 @@ namespace Data_AugTool
                     Cv2.Flip(orgMat, previewMat, FlipMode.X);
                     break;
                 case "Noise":
-                    matrix = new Mat(orgMat.Size() ,MatType.CV_8UC3);
+                    matrix = new Mat(orgMat.Size(), MatType.CV_8UC3);
                     Cv2.Randn(matrix, Scalar.All(0), Scalar.All(slider.Value));         //정규분포를 나타내는 이미지를 랜덤하게 생성
-                    Cv2.AddWeighted(orgMat, 1, matrix, 1, 0, previewMat);           //두 이미지를 가중치를 설정하여 합침
+                    Cv2.AddWeighted(orgMat, 1, matrix, 1, 0, previewMat);               //두 이미지를 가중치를 설정하여 합침
                     break;
                 case "Zoom In":
                     //Cv2.PyrDown(orgMat, previewMat);
-
                     //#1. Center만 확대
-
                     double width_param = (int)(0.8 * orgMat.Width); // 0.8이 배율 orgMat.Width이 원본이미지의 사이즈 // 나중에 0.8만 80%형식으로 바꿔서 파라미터로 빼야됨
                     double height_param = (int)(0.8 * orgMat.Height); // 0.8이 배율 orgMat.Height 원본이미지의 사이즈 //
-
                     int startX = orgMat.Width - (int)width_param;// 이미지를 Crop해올 좌상단 위치 지정하는값 // 원본사이즈 - 배율로 감소한 사이즈
                     int startY = orgMat.Height - (int)height_param;//
-
                     Mat tempMat = new Mat(orgMat, new OpenCvSharp.Rect(startX, startY, (int)width_param, (int)height_param));//중간과정 mat이고 Rect안에 x,y,width,height 값 지정해주는거
                     //예외처리 범위 밖으로 벗어나는경우 shift시키거나 , 제로페딩을 시키거나
-                    //예외처리
-                    
-                    Cv2.Resize(tempMat, previewMat, new OpenCvSharp.Size(orgMat.Width, orgMat.Height),(double)((double)orgMat.Width/(double)width_param), (double)((double)orgMat.Height/(double)height_param), InterpolationFlags.Cubic);
+                    //예외처리                 
+                    Cv2.Resize(tempMat, previewMat, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), (double)((double)orgMat.Width / (double)width_param), (double)((double)orgMat.Height / (double)height_param), InterpolationFlags.Cubic);
                     // (double) ( (double)orgMat.Width  /  (double)width_param)
                     // 형변환       원본이미지 형변환      /       타겟이미지 배율    == 타겟이미지가 원본이미지 대비 몇배인가? 의 수식임
                     // (double) ( (double)orgMat.Height  /  (double)height_param)
-
-                    //#2. 랜덤좌표
-                    //#3. 지정좌표
                     break;
 
                 case "Sharpen":
                     float[] data = new float[9] { -1, -1, -1, -1, 9, -1, -1, -1, -1 };
                     Mat kernel = new Mat(3, 3, MatType.CV_8S, data);
-                    Cv2.AddWeighted(orgMat, 1.5, kernel, -0.9, 0, previewMat);              
+                    Cv2.AddWeighted(orgMat, 1.5, kernel, -0.5, 0, previewMat);
                     break;
 
-                case "Gradation":
-                    
-                    break;
 
- 
+                //case "Gradation":
+                //    matrix = new Mat(orgMat.Size(), MatType.CV_8S);
+                //    for (int i = 0; i < matrix.Rows; i++)
+                //    {                    
+
+                //    }
+                //    break;
+
+
                 case "Random Brightness Contrast":
-
+                    
 
                     break;
 
+
+
+                case "IAASharpen":
+                    //  Args:
+                    //  alpha((float, float)): range to choose the visibility of the sharpened image.At 0, only the original image is
+                    //    visible, at 1.0 only its sharpened version is visible.Default: (0.2, 0.5).
+                    // lightness((float, float)): range to choose the lightness of the sharpened image.Default: (0.5, 1.0).
+                    //  p(float): probability of applying the transform.Default: 0.5.
+                    break;
+
+
+
+                    // Contrast Limited Adapative Histogram Equalization
                 case "CLAHE":
-
-
-                    break;
-
-
+                    CLAHE test = Cv2.CreateCLAHE();
+                    test.SetClipLimit(700.0f);
+                    test.SetTilesGridSize(new OpenCvSharp.Size(4.0, 4.0));
+                    Mat normalized = new Mat();
+                    Mat temp = new Mat();
+                    orgMat.ConvertTo(temp, MatType.CV_16UC1);
+                    Cv2.CvtColor(temp, temp, ColorConversionCodes.BGR2GRAY);
+                    test.Apply(temp, previewMat);
+                    //previewMat.ConvertTo(previewMat, MatType.CV_8U);
+                    Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.GRAY2BGR);
+                        break;
                 default:
                     break;
-
             }
             ui_PreviewImage.Source = previewMat.ToBitmapSource();
 
@@ -278,16 +295,29 @@ namespace Data_AugTool
 
         }
 
-        private void dataGrid1_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
+        private void ui_GenerateButton_Click(object sender, RoutedEventArgs e)
+        {
+            GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
+            foreach (var info in AlbumentationInfos)
+            {
+                if (info.IsChecked)
+                {
+                    info.Value = RandomGenerator.Next((int)info.ValueMin, (int)info.ValueMax+1);
+                    //double newValue = RandomGenerator.NextDouble();
+                    //info.Value = (info.ValueMax - info.ValueMin) * newValue + info.ValueMin;
+                    GeneratedAlbumentations.Add(info);
+                }
+            }
+            ui_dataGridRecipe.ItemsSource = GeneratedAlbumentations;
+        }
+
+        private void ui_dataGridRecipe_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
     }
 
  }
-
-
-
 
 public class ImageInfo
     {

@@ -16,6 +16,7 @@ namespace Data_AugTool.Model
         public double ValueMax { get; set; }       
         public bool IsUseValueMin { get; set; }
         public bool IsUseValueMax { get; set; }
+        public double Value { get; set; } = 0;
 
         public AlbumentationInfo()
         {

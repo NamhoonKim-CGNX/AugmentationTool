@@ -67,51 +67,48 @@
         </Border>
 
         <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Margin="1">
-            <ListBox x:Name="AlbumentationListBox" Margin="10" SelectionChanged="AlbumentationListBox_SelectionChanged">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding TypeName}" Width="250" VerticalAlignment="Center"/>
-                            <TextBox Text="{Binding ValueMin, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="2 2 5 2" BorderThickness="1" HorizontalContentAlignment="Right"
-                                      VerticalAlignment="Center"
-                                      TextChanged="TextBox_TextChanged" IsEnabled="{Binding IsUseValueMin}"/>
-                            <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Width="40" Margin="2 2 10 2" BorderThickness="1" HorizontalContentAlignment="Right" 
-                                     IsEnabled="{Binding IsUseValueMax}"/>
-                            <CheckBox IsChecked="{Binding IsChecked, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <DockPanel Margin="20, 0, 20, 0" LastChildFill="True">
+                <ListBox x:Name="AlbumentationListBox" Margin="10"  DockPanel.Dock="Top" Height="450"
+                         SelectionChanged="AlbumentationListBox_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding TypeName}" Width="250" VerticalAlignment="Center"/>
+                                <TextBox Text="{Binding ValueMin, UpdateSourceTrigger=PropertyChanged}" Width="40" Margin="2 2 5 2" BorderThickness="1" HorizontalContentAlignment="Right"
+                                          VerticalAlignment="Center"
+                                          TextChanged="TextBox_TextChanged" IsEnabled="{Binding IsUseValueMin}"/>
+                                <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Width="40" Margin="2 2 10 2" BorderThickness="1" HorizontalContentAlignment="Right" 
+                                         IsEnabled="{Binding IsUseValueMax}"/>
+                                <CheckBox IsChecked="{Binding IsChecked, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            
+                <DockPanel DockPanel.Dock="Top">
+                    <Slider Name="McScroller" Orientation="Horizontal"  DockPanel.Dock="Left"
+                        Width ="250" Height="30"
+                        Margin="10"  
+                        Maximum="100" Minimum="0" ValueChanged="McScroller_ValueChanged"/>
+                    <TextBlock Width="150" Height="20" DockPanel.Dock="Right" Text ="{Binding ElementName=McScroller, Path=Value, UpdateSourceTrigger=PropertyChanged,StringFormat=Value {0:F2}}"/>
+                </DockPanel>
+
+                <Button x:Name="ui_GenerateButton" Content="Generate New Recipe" DockPanel.Dock="Top" Margin="5 5 5 20" Click="ui_GenerateButton_Click"/>
+                <Grid DockPanel.Dock="Bottom">
+                    <DataGrid AutoGenerateColumns="False" Margin="-10 ,0 ,-10 ,0" Name="ui_dataGridRecipe" SelectionChanged="ui_dataGridRecipe_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="TypeName" Width="70" Binding="{Binding Path=TypeName}"/>
+                            <DataGridTextColumn Header="Minmum" Width="90" Binding="{Binding Path=ValueMin}"/>
+                            <DataGridTextColumn Header="Maxmum" Width="90" Binding="{Binding Path=ValueMax}"/>
+                            <DataGridTextColumn Header="Value" Width="80" Binding="{Binding Path=Value}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </DockPanel>
         </Border>
 
-        <!-- Slider 영역 -->
-        <Grid Grid.Column="3" Grid.Row="3" Margin="20,-700, 20, 0">
-            <DockPanel>
-                <Slider Name="McScroller" Orientation="Horizontal"  
-                   Width ="250" Height="100"  
-                   Margin="20"  
-                   Maximum="100" Minimum="0" ValueChanged="McScroller_ValueChanged"/>
-                <TextBlock Width="150" Height="20" DockPanel.Dock="Right" Text ="{Binding ElementName=McScroller, Path=Value, UpdateSourceTrigger=PropertyChanged,StringFormat=Value {0:F2}}"/>
-                <DataGrid x:Name="DataGrid" Height="170" VerticalAlignment="Bottom" Width="330" Margin="20, -300, 20, 0"/>
-            </DockPanel>
+     
 
-            <Grid>
-                <DataGrid AutoGenerateColumns="False" Height="390" HorizontalAlignment="Left" Margin="-10 ,0 ,-10 ,0" Name="dataGrid1" VerticalAlignment="Bottom" Width="400" SelectionChanged="dataGrid1_SelectionChanged_1">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Option" Binding="{Binding Path=Option}"/>
-                        <DataGridTextColumn Header="Recipe" Binding="{Binding Path=Recipe}"/>
-                        <DataGridTextColumn Header="Minmum" Binding="{Binding Path=Minmum}"/>
-                        <DataGridTextColumn Header="Maxmum" Binding="{Binding Path=Maxmum}"/>
-                        <DataGridTextColumn Header="Random" Binding="{Binding Path=Random}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Grid>
-
-
-
-
-
-        </Grid>
 
     </Grid>
 
