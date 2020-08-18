@@ -332,15 +332,27 @@ namespace Data_AugTool
 
         private void ui_AlbumentationStart_Click(object sender, RoutedEventArgs e)
         {
-            previewMat.SaveImage(_OutputPath + "\\" + System.IO.Path.GetFileName(_SelectedItem.ImageName));
-            
-            //Start 버튼 클릭시 폴더별 이미지 생성
-            //원본 파일명+ Rename 
+            foreach (AlbumentationInfo albumentation in _GeneratedAlbumentations)
+            {
+                if (albumentation.ValueMin + albumentation.ValueMax + albumentation.Value == 0)
+                {
+                    continue;
+                }
+                string fileName = System.IO.Path.GetFileNameWithoutExtension(_SelectedItem.ImageName);
+                string fileExtention = System.IO.Path.GetExtension(_SelectedItem.ImageName);
+                string subDirectoryName = System.IO.Path.Combine(_OutputPath, albumentation.TypeName);
+                if (!Directory.Exists(subDirectoryName))
+                {
+                    System.IO.Directory.CreateDirectory(subDirectoryName);
+                }
+                string renameFile = fileName + "_" + albumentation.TypeName + fileExtention;
+                previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
+            }
 
+            //Start 버튼 클릭시 폴더별 이미지 생성
+            //원본 파일명+ Rename
         }
         private ImageInfo _SelectedItem = null;
-
-
 
     }
  }
