@@ -37,14 +37,16 @@ namespace Data_AugTool
     public partial class MainWindow : MetroWindow
     {
 
-        private Random RandomGenerator = new Random();
-        private List<AlbumentationInfo> AlbumentationInfos = new List<AlbumentationInfo>();
-        private ObservableCollection<AlbumentationInfo> GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
+        private Random _RandomGenerator = new Random();
+        private List<AlbumentationInfo> _AlbumentationInfos = new List<AlbumentationInfo>();
+        private ObservableCollection<AlbumentationInfo> _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
+        private string _OutputPath = null;
+        Mat previewMat = new Mat();
         public MainWindow()
         {
             InitializeComponent();
 
-            AlbumentationInfos.AddRange(new List<AlbumentationInfo>()
+            _AlbumentationInfos.AddRange(new List<AlbumentationInfo>()
             {
                 new AlbumentationInfo("Contrast", 0.0, 2.0),
                 new AlbumentationInfo("Brightness", -50.0, 100.0),
@@ -62,11 +64,11 @@ namespace Data_AugTool
                 new AlbumentationInfo("CLAHE"),
 
             });
-            foreach (var item in AlbumentationInfos)
+            foreach (var item in _AlbumentationInfos)
             {
                 item.IsChecked= true;
             }
-            AlbumentationListBox.ItemsSource = AlbumentationInfos;
+            AlbumentationListBox.ItemsSource = _AlbumentationInfos;
         }
 
         private void ListView1_SelectionChanged(object sender, SelectedCellsChangedEventArgs e)
@@ -90,10 +92,12 @@ namespace Data_AugTool
 
                 textBox.Text = path;
             }
+            string[] imageFormat = new string[] { "jpg", "jpeg", "png", "bmp", "tif", "tiff" };
+            var imageFiles = files.Where(file => imageFormat.Any(extension => file.ToLower().EndsWith(extension))).ToList();
             List<ImageInfo> items = new List<ImageInfo>();
-            for (int i = 0; i < files.Length; i++)
+            for (int i = 0; i < imageFiles.Count(); i++)
             {
-                items.Add(new ImageInfo() { ImageNumber = i + 1, ImageName = files[i] });
+                items.Add(new ImageInfo() { ImageNumber = i + 1, ImageName = imageFiles[i] });
             }
             ListView1.ItemsSource = items;
             Dynamic2.Source = new BitmapImage(new Uri(items[0].ImageName));
@@ -101,14 +105,14 @@ namespace Data_AugTool
 
         private void btnLoadFromOutput_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
+            CommonOpenFileDialog openFileDialog = new CommonOpenFileDialog();
+            openFileDialog.IsFolderPicker = true;
+            openFileDialog.Multiselect = false;
+
+            if (openFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                BitmapImage Test = new BitmapImage();
-                Test.BeginInit();
-                Test.UriSource = new Uri(openFileDialog.FileName);
-                Test.EndInit();
-                Dynamic2.Source = Test;
+                _OutputPath = openFileDialog.FileName;               
+                textBox2.Text = _OutputPath;
             }
 
         }
@@ -116,6 +120,8 @@ namespace Data_AugTool
         private void ListView1_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
         {
             var selectedItem = ListView1.SelectedItem as ImageInfo;
+            if (selectedItem == null)
+                return;
 
             Dynamic2.Source = new BitmapImage(new Uri(selectedItem.ImageName));
 
@@ -173,7 +179,7 @@ namespace Data_AugTool
 
             //var originalImage = new BitmapImage(new Uri(selectedImageInfo.ImageName));
             Mat orgMat = new Mat(selectedImageInfo.ImageName);
-            Mat previewMat = new Mat();
+            //Mat previewMat = new Mat();
 
             //ui_PreviewImage.Source = new BitmapImage(new Uri(selectedImageInfo.ImageName));
             Mat matrix;
@@ -224,9 +230,13 @@ namespace Data_AugTool
                     break;
 
                 case "Sharpen":
-                    float[] data = new float[9] { -1, -1, -1, -1, 9, -1, -1, -1, -1 };
-                    Mat kernel = new Mat(3, 3, MatType.CV_8S, data);
-                    Cv2.AddWeighted(orgMat, 1.5, kernel, -0.5, 0, previewMat);
+                    float filterBase = -1f;
+                    float filterCenter = filterBase * -9;
+                    float[] data = new float[9] { filterBase, filterBase, filterBase,
+                                                  filterBase, filterCenter, filterBase,
+                                                  filterBase, filterBase, filterBase };
+                    Mat kernel = new Mat(3, 3, MatType.CV_32F, data);
+                    Cv2.Filter2D(orgMat, previewMat, orgMat.Type(), kernel);
                     break;
 
 
@@ -269,9 +279,13 @@ namespace Data_AugTool
                     //previewMat.ConvertTo(previewMat, MatType.CV_8U);
                     Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.GRAY2BGR);
                         break;
+
                 default:
                     break;
             }
+            if (previewMat.Width == 0 || previewMat.Height == 0)
+                return;
+
             ui_PreviewImage.Source = previewMat.ToBitmapSource();
 
         }
@@ -297,27 +311,38 @@ namespace Data_AugTool
 
         private void ui_GenerateButton_Click(object sender, RoutedEventArgs e)
         {
-            GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
-            foreach (var info in AlbumentationInfos)
+            _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
+            foreach (var info in _AlbumentationInfos)
             {
                 if (info.IsChecked)
                 {
-                    info.Value = RandomGenerator.Next((int)info.ValueMin, (int)info.ValueMax+1);
-                    //double newValue = RandomGenerator.NextDouble();
-                    //info.Value = (info.ValueMax - info.ValueMin) * newValue + info.ValueMin;
-                    GeneratedAlbumentations.Add(info);
+                    if(info.TypeName == "Contrast")
+                        info.Value = (info.ValueMax - info.ValueMin) * _RandomGenerator.NextDouble() + info.ValueMin;
+                    else
+                        info.Value = _RandomGenerator.Next((int)info.ValueMin, (int)info.ValueMax+1);                    
+
+                    _GeneratedAlbumentations.Add(info);
                 }
             }
-            ui_dataGridRecipe.ItemsSource = GeneratedAlbumentations;
+            ui_dataGridRecipe.ItemsSource = _GeneratedAlbumentations;
         }
+
 
         private void ui_dataGridRecipe_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
+
+        private void ui_AlbumentationStart_Click(object sender, RoutedEventArgs e)
+        {
+            //PreviewImage(_OutputPath + "\\1.jpg");
+
+
+        }
     }
 
  }
+
 
 public class ImageInfo
     {
