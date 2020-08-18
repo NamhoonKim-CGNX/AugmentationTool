@@ -120,11 +120,11 @@ namespace Data_AugTool
 
         private void ListView1_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
         {
-            _SelectedItem = ListView1.SelectedItem as ImageInfo;
-            if (_SelectedItem == null)
+            var selectedItem = ListView1.SelectedItem as ImageInfo;
+            if (selectedItem == null)
                 return;
 
-            Dynamic2.Source = new BitmapImage(new Uri(_SelectedItem.ImageName));
+            Dynamic2.Source = new BitmapImage(new Uri(selectedItem.ImageName));
 
             UpdatePreviewImage();
         }
@@ -184,11 +184,10 @@ namespace Data_AugTool
 
             Mat previewMat = Recipe(selectedImageInfo.ImageName, listBoxSelectedItem.TypeName);
 
-            // 기존에 미리보기 용도로만 이미지 Processing 되었었는데, 이미지 출력하는 부분에서도 해당 용도가 필요하여 변경이 진행되었음 20200818
-
             ////var originalImage = new BitmapImage(new Uri(selectedImageInfo.ImageName));
             //Mat orgMat = new Mat(selectedImageInfo.ImageName);
             ////Mat previewMat = new Mat();
+
 
             //ui_PreviewImage.Source = new BitmapImage(new Uri(selectedImageInfo.ImageName));
             //Mat matrix;
@@ -237,6 +236,7 @@ namespace Data_AugTool
             //        // 형변환       원본이미지 형변환      /       타겟이미지 배율    == 타겟이미지가 원본이미지 대비 몇배인가? 의 수식임
             //        // (double) ( (double)orgMat.Height  /  (double)height_param)
             //        break;
+
             //    case "Sharpen":
             //        float filterBase = -1f;
             //        float filterCenter = filterBase * -9;
@@ -246,14 +246,22 @@ namespace Data_AugTool
             //        Mat kernel = new Mat(3, 3, MatType.CV_32F, data);
             //        Cv2.Filter2D(orgMat, previewMat, orgMat.Type(), kernel);
             //        break;
+
+
             //    //case "Gradation":
             //    //    matrix = new Mat(orgMat.Size(), MatType.CV_8S);
             //    //    for (int i = 0; i < matrix.Rows; i++)
             //    //    {                    
+
             //    //    }
             //    //    break;
+
+
             //    case "Random Brightness Contrast":
+
+
             //        break;
+
             //    case "IAASharpen":
             //        //  Args:
             //        //  alpha((float, float)): range to choose the visibility of the sharpened image.At 0, only the original image is
@@ -261,6 +269,7 @@ namespace Data_AugTool
             //        // lightness((float, float)): range to choose the lightness of the sharpened image.Default: (0.5, 1.0).
             //        //  p(float): probability of applying the transform.Default: 0.5.
             //        break;
+
             //    // Contrast Limited Adapative Histogram Equalization
             //    case "CLAHE":
             //        CLAHE test = Cv2.CreateCLAHE();
@@ -274,6 +283,7 @@ namespace Data_AugTool
             //        //previewMat.ConvertTo(previewMat, MatType.CV_8U);
             //        Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.GRAY2BGR);
             //        break;
+
             //    default:
             //        break;
             //}
@@ -446,33 +456,34 @@ namespace Data_AugTool
 
         private void ui_AlbumentationStart_Click(object sender, RoutedEventArgs e)
         {
+            var items = ListView1.ItemsSource as List<ImageInfo>;
+
             foreach (AlbumentationInfo albumentation in _GeneratedAlbumentations)
             {
-                //if (albumentation.ValueMin + albumentation.ValueMax + albumentation.Value == 0)
-                //{
-                //    continue;
-                //}
-                string fileName = System.IO.Path.GetFileNameWithoutExtension(_SelectedItem.ImageName);
-                string fileExtention = System.IO.Path.GetExtension(_SelectedItem.ImageName);
-                string subDirectoryName = System.IO.Path.Combine(_OutputPath, albumentation.TypeName);
-                if (!Directory.Exists(subDirectoryName))
+                foreach (ImageInfo imageInfo in items)
                 {
-                    System.IO.Directory.CreateDirectory(subDirectoryName);
+                    string fileName = System.IO.Path.GetFileNameWithoutExtension(imageInfo.ImageName);
+                    string fileExtention = System.IO.Path.GetExtension(imageInfo.ImageName);
+                    string subDirectoryName = System.IO.Path.Combine(_OutputPath, albumentation.TypeName);
+                    if (!Directory.Exists(subDirectoryName))
+                    {
+                        System.IO.Directory.CreateDirectory(subDirectoryName);
+                    }
+                    string renameFile = fileName + "_" + albumentation.TypeName + fileExtention;
+
+                    Mat previewMat = Recipe(imageInfo.ImageName, albumentation.TypeName);
+
+                    previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
                 }
-                string renameFile = fileName + "_" + albumentation.TypeName + fileExtention;
-
-                Mat previewMat = Recipe(_SelectedItem.ImageName, albumentation.TypeName);
-
-                previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
             }
 
             //Start 버튼 클릭시 폴더별 이미지 생성
             //원본 파일명+ Rename
         }
-        private ImageInfo _SelectedItem = null;
-
     }
 }
+
+
 public class ImageInfo
 {
     public int ImageNumber { get; set; }
