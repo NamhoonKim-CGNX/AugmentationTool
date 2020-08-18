@@ -28,6 +28,7 @@ using MahApps.Metro.Controls;
 using System.Web.UI;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 
 namespace Data_AugTool
 {
@@ -66,7 +67,7 @@ namespace Data_AugTool
             });
             foreach (var item in _AlbumentationInfos)
             {
-                item.IsChecked= true;
+                item.IsChecked = true;
             }
             AlbumentationListBox.ItemsSource = _AlbumentationInfos;
         }
@@ -79,7 +80,7 @@ namespace Data_AugTool
         string[] files;
 
         //<!-- Image listview & orginal Image Viewer with Input URL shown -->
-                private void btnLoadFromFile_Click(object sender, RoutedEventArgs e)
+        private void btnLoadFromFile_Click(object sender, RoutedEventArgs e)
         {
             string path;
             CommonOpenFileDialog dialog = new CommonOpenFileDialog();
@@ -111,7 +112,7 @@ namespace Data_AugTool
 
             if (openFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                _OutputPath = openFileDialog.FileName;               
+                _OutputPath = openFileDialog.FileName;
                 textBox2.Text = _OutputPath;
             }
 
@@ -119,11 +120,11 @@ namespace Data_AugTool
 
         private void ListView1_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
         {
-            var selectedItem = ListView1.SelectedItem as ImageInfo;
-            if (selectedItem == null)
+            _SelectedItem = ListView1.SelectedItem as ImageInfo;
+            if (_SelectedItem == null)
                 return;
 
-            Dynamic2.Source = new BitmapImage(new Uri(selectedItem.ImageName));
+            Dynamic2.Source = new BitmapImage(new Uri(_SelectedItem.ImageName));
 
             UpdatePreviewImage();
         }
@@ -250,11 +251,9 @@ namespace Data_AugTool
 
 
                 case "Random Brightness Contrast":
-                    
+
 
                     break;
-
-
 
                 case "IAASharpen":
                     //  Args:
@@ -264,9 +263,7 @@ namespace Data_AugTool
                     //  p(float): probability of applying the transform.Default: 0.5.
                     break;
 
-
-
-                    // Contrast Limited Adapative Histogram Equalization
+                // Contrast Limited Adapative Histogram Equalization
                 case "CLAHE":
                     CLAHE test = Cv2.CreateCLAHE();
                     test.SetClipLimit(700.0f);
@@ -278,7 +275,7 @@ namespace Data_AugTool
                     test.Apply(temp, previewMat);
                     //previewMat.ConvertTo(previewMat, MatType.CV_8U);
                     Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.GRAY2BGR);
-                        break;
+                    break;
 
                 default:
                     break;
@@ -295,7 +292,7 @@ namespace Data_AugTool
         }
 
         private void StackPanel_Loaded(object sender, RoutedEventArgs e)
-        {            
+        {
 
         }
 
@@ -316,10 +313,10 @@ namespace Data_AugTool
             {
                 if (info.IsChecked)
                 {
-                    if(info.TypeName == "Contrast")
+                    if (info.TypeName == "Contrast")
                         info.Value = (info.ValueMax - info.ValueMin) * _RandomGenerator.NextDouble() + info.ValueMin;
                     else
-                        info.Value = _RandomGenerator.Next((int)info.ValueMin, (int)info.ValueMax+1);                    
+                        info.Value = _RandomGenerator.Next((int)info.ValueMin, (int)info.ValueMax + 1);
 
                     _GeneratedAlbumentations.Add(info);
                 }
@@ -335,12 +332,17 @@ namespace Data_AugTool
 
         private void ui_AlbumentationStart_Click(object sender, RoutedEventArgs e)
         {
-            //PreviewImage(_OutputPath + "\\1.jpg");
-
+            previewMat.SaveImage(_OutputPath + "\\" + System.IO.Path.GetFileName(_SelectedItem.ImageName));
+            
+            //Start 버튼 클릭시 폴더별 이미지 생성
+            //원본 파일명+ Rename 
 
         }
-    }
+        private ImageInfo _SelectedItem = null;
 
+
+
+    }
  }
 
 
