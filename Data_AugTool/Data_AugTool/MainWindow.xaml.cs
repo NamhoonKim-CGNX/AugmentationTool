@@ -29,6 +29,7 @@ using System.Web.UI;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
+using OpenCvSharp.XImgProc.Segmentation;
 
 namespace Data_AugTool
 {
@@ -59,9 +60,6 @@ namespace Data_AugTool
                 new AlbumentationInfo("Noise", 0.0, 20.0),
                 new AlbumentationInfo("Zoom In"),
                 new AlbumentationInfo("Sharpen"),
-                new AlbumentationInfo("Gradation"),
-                new AlbumentationInfo("RandomBrightnessContrast"),
-                new AlbumentationInfo("IAASharpen"),
                 new AlbumentationInfo("CLAHE"),
 
             });
@@ -246,22 +244,6 @@ namespace Data_AugTool
             //        Mat kernel = new Mat(3, 3, MatType.CV_32F, data);
             //        Cv2.Filter2D(orgMat, previewMat, orgMat.Type(), kernel);
             //        break;
-
-
-            //    //case "Gradation":
-            //    //    matrix = new Mat(orgMat.Size(), MatType.CV_8S);
-            //    //    for (int i = 0; i < matrix.Rows; i++)
-            //    //    {                    
-
-            //    //    }
-            //    //    break;
-
-
-            //    case "Random Brightness Contrast":
-
-
-            //        break;
-
             //    case "IAASharpen":
             //        //  Args:
             //        //  alpha((float, float)): range to choose the visibility of the sharpened image.At 0, only the original image is
@@ -269,7 +251,6 @@ namespace Data_AugTool
             //        // lightness((float, float)): range to choose the lightness of the sharpened image.Default: (0.5, 1.0).
             //        //  p(float): probability of applying the transform.Default: 0.5.
             //        break;
-
             //    // Contrast Limited Adapative Histogram Equalization
             //    case "CLAHE":
             //        CLAHE test = Cv2.CreateCLAHE();
@@ -283,7 +264,6 @@ namespace Data_AugTool
             //        //previewMat.ConvertTo(previewMat, MatType.CV_8U);
             //        Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.GRAY2BGR);
             //        break;
-
             //    default:
             //        break;
             //}
@@ -349,7 +329,6 @@ namespace Data_AugTool
                     // 형변환       원본이미지 형변환      /       타겟이미지 배율    == 타겟이미지가 원본이미지 대비 몇배인가? 의 수식임
                     // (double) ( (double)orgMat.Height  /  (double)height_param)
                     break;
-
                 case "Sharpen":
                     float filterBase = -1f;
                     float filterCenter = filterBase * -9;
@@ -359,30 +338,6 @@ namespace Data_AugTool
                     Mat kernel = new Mat(3, 3, MatType.CV_32F, data);
                     Cv2.Filter2D(orgMat, previewMat, orgMat.Type(), kernel);
                     break;
-
-
-                //case "Gradation":
-                //    matrix = new Mat(orgMat.Size(), MatType.CV_8S);
-                //    for (int i = 0; i < matrix.Rows; i++)
-                //    {                    
-
-                //    }
-                //    break;
-
-
-                case "Random Brightness Contrast":
-
-
-                    break;
-
-                case "IAASharpen":
-                    //  Args:
-                    //  alpha((float, float)): range to choose the visibility of the sharpened image.At 0, only the original image is
-                    //    visible, at 1.0 only its sharpened version is visible.Default: (0.2, 0.5).
-                    // lightness((float, float)): range to choose the lightness of the sharpened image.Default: (0.5, 1.0).
-                    //  p(float): probability of applying the transform.Default: 0.5.
-                    break;
-
                 // Contrast Limited Adapative Histogram Equalization
                 case "CLAHE":
                     CLAHE test = Cv2.CreateCLAHE();
