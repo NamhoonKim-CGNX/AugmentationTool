@@ -413,8 +413,12 @@ namespace Data_AugTool
         {
             var items = ListView1.ItemsSource as List<ImageInfo>;
 
+
+
             foreach (AlbumentationInfo albumentation in _GeneratedAlbumentations)
             {
+                // 파일 끝 인덱스 추가
+                int no = 0;
                 foreach (ImageInfo imageInfo in items)
                 {
                     string fileName = System.IO.Path.GetFileNameWithoutExtension(imageInfo.ImageName);
@@ -424,16 +428,13 @@ namespace Data_AugTool
                     {
                         System.IO.Directory.CreateDirectory(subDirectoryName);
                     }
-                    string renameFile = fileName + "_" + albumentation.TypeName + fileExtention;
-
+                    string renameFile = fileName + "_" + albumentation.TypeName + no.ToString() + fileExtention;
                     Mat previewMat = Recipe(imageInfo.ImageName, albumentation.TypeName);
-
                     previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
+                    // 숫자 증가
+                    no++;
                 }
             }
-
-            //Start 버튼 클릭시 폴더별 이미지 생성
-            //원본 파일명+ Rename
         }
     }
 }
