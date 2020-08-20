@@ -127,6 +127,22 @@ namespace Data_AugTool
             UpdatePreviewImage();
         }
 
+        private void ListView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                var selectedItem = ListView1.SelectedItem as ImageInfo;
+                if (selectedItem == null)
+                    return;
+
+                var items = ListView1.ItemsSource as List<ImageInfo>;
+                items.Remove(selectedItem);
+                ListView1.ItemsSource = items;
+            }
+
+        }
+
+
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
 
@@ -181,7 +197,7 @@ namespace Data_AugTool
             _Slider = slider;
 
             Mat previewMat = Recipe(selectedImageInfo.ImageName, listBoxSelectedItem.TypeName);
-
+            #region
             ////var originalImage = new BitmapImage(new Uri(selectedImageInfo.ImageName));
             //Mat orgMat = new Mat(selectedImageInfo.ImageName);
             ////Mat previewMat = new Mat();
@@ -267,6 +283,7 @@ namespace Data_AugTool
             //    default:
             //        break;
             //}
+            #endregion
             if (previewMat.Width == 0 || previewMat.Height == 0)
                 return;
 
@@ -418,7 +435,7 @@ namespace Data_AugTool
             foreach (AlbumentationInfo albumentation in _GeneratedAlbumentations)
             {
                 // 파일 끝 인덱스 추가
-                int no = 0;
+      
                 foreach (ImageInfo imageInfo in items)
                 {
                     string fileName = System.IO.Path.GetFileNameWithoutExtension(imageInfo.ImageName);
@@ -428,16 +445,17 @@ namespace Data_AugTool
                     {
                         System.IO.Directory.CreateDirectory(subDirectoryName);
                     }
-                    string renameFile = fileName + "_" + albumentation.TypeName + no.ToString() + fileExtention;
+                    string renameFile = fileName + "_" + albumentation.TypeName + fileExtention;
                     Mat previewMat = Recipe(imageInfo.ImageName, albumentation.TypeName);
                     previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
-                    // 숫자 증가
-                    no++;
+                  
                 }
             }
         }
+
+
+        }
     }
-}
 
 
 public class ImageInfo
