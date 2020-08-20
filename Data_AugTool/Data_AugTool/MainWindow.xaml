@@ -94,6 +94,7 @@
                         Margin="10"  
                         Maximum="100" Minimum="0" ValueChanged="McScroller_ValueChanged"/>
                     <TextBlock Width="150" Height="20" DockPanel.Dock="Right" Text ="{Binding ElementName=McScroller, Path=Value, UpdateSourceTrigger=PropertyChanged,StringFormat=Value {0:F2}}"/>
+                    
                 </DockPanel>
 
                 <Button x:Name="ui_GenerateButton" Content="Generate New Recipe" DockPanel.Dock="Top" Margin="5 5 5 20" Click="ui_GenerateButton_Click"/>

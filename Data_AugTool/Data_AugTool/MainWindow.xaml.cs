@@ -50,7 +50,7 @@ namespace Data_AugTool
 
             _AlbumentationInfos.AddRange(new List<AlbumentationInfo>()
             {
-                new AlbumentationInfo("Contrast", 0.0, 2.0),
+                new AlbumentationInfo("Contrast", 0.5, 2.0),
                 new AlbumentationInfo("Brightness", -50.0, 100.0),
                 new AlbumentationInfo("Blur", 0, 2),
                 new AlbumentationInfo("Rotation" , 0, 30),
