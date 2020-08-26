@@ -298,7 +298,7 @@ namespace Data_AugTool
             //Mat previewMat = new Mat();
 
             Mat previewMat = new Mat();
-
+            #region //Algorithm
             //ui_PreviewImage.Source = new BitmapImage(new Uri(selectedImageInfo.ImageName));
             Mat matrix;
             switch (option)
@@ -375,6 +375,7 @@ namespace Data_AugTool
 
             return previewMat;
         }
+        #endregion
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -413,7 +414,31 @@ namespace Data_AugTool
             }
             ui_dataGridRecipe.ItemsSource = _GeneratedAlbumentations;
 
-            McScroller.Value = _GeneratedAlbumentations[0].Value;
+            //McScroller.Value = _GeneratedAlbumentations[0].Value;
+        }
+
+        private void ui_GenerateNormal_Click(object sender, RoutedEventArgs e)
+        {
+
+            var slider = McScroller as Slider;
+            if (slider == null)
+                return;
+
+            _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
+            foreach (var info in _AlbumentationInfos)
+            {
+                if (info.IsChecked)
+                {
+                    //if (info.TypeName == "Contrast")
+                    //    info.Value = (info.ValueMax - info.ValueMin) * _RandomGenerator.NextDouble() + info.ValueMin;
+                    //else
+                    info.Value = slider.Value;
+
+                    _GeneratedAlbumentations.Add(info);
+                }
+            }
+            ui_dataGridRecipe.ItemsSource = _GeneratedAlbumentations;
+
         }
 
 
@@ -435,7 +460,7 @@ namespace Data_AugTool
             foreach (AlbumentationInfo albumentation in _GeneratedAlbumentations)
             {
                 // 파일 끝 인덱스 추가
-      
+
                 foreach (ImageInfo imageInfo in items)
                 {
                     string fileName = System.IO.Path.GetFileNameWithoutExtension(imageInfo.ImageName);
@@ -448,19 +473,17 @@ namespace Data_AugTool
                     string renameFile = fileName + "_" + albumentation.TypeName + fileExtention;
                     Mat previewMat = Recipe(imageInfo.ImageName, albumentation.TypeName);
                     previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
-                  
+
                 }
             }
         }
 
 
+        public class ImageInfo
+        {
+            public int ImageNumber { get; set; }
+            public string ImageName { get; set; }
         }
+
     }
-
-
-public class ImageInfo
-{
-    public int ImageNumber { get; set; }
-    public string ImageName { get; set; }
 }
-
