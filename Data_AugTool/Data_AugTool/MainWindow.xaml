@@ -59,21 +59,24 @@
         <Button x:Name="btnLoadFromOutput" Content="Output" Click="btnLoadFromOutput_Click" Margin="336,84,38,41" Grid.Row="3" Grid.Column="2" FontWeight="Bold" FontSize="18"/>
         <!-- Ouput Image 지정 URL -->
         <TextBox x:Name="textBox2" HorizontalAlignment="Left" Height="38" Margin="10,90,0,0" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Top" Width="937" Grid.ColumnSpan="3"/>
-        
+
         <!-- Ouput List -->
         <TextBlock Text="Preview Image" Width="150" HorizontalAlignment="Left" Margin="10,10,0,330" Grid.Column="2" Grid.Row="2" FontWeight="Bold" FontSize="15" FontFamily="Arial Black"/>
         <!-- Output Image viewer section -->
         <Border BorderThickness="2" BorderBrush="Yellow" Margin="10,40,10,10" Grid.Column="2" Grid.Row="2"  >
             <Image x:Name="ui_PreviewImage" Width="500"/>
-            
+
 
         </Border>
 
         <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Margin="1">
-            
-            
-            
+
+          
             <DockPanel Margin="20, 0, 20, 0" LastChildFill="True">
+                <CheckBox IsChecked="False" Content="Select All" DockPanel.Dock="Top" HorizontalAlignment="Right" Checked="CheckBox_Checked_1">
+                    
+                </CheckBox>
+                
                 <ListBox x:Name="AlbumentationListBox" Margin="10"  DockPanel.Dock="Top" Height="450"
                          SelectionChanged="AlbumentationListBox_SelectionChanged">
                     <ListBox.ItemTemplate>
@@ -92,18 +95,40 @@
                 </ListBox>
 
                 <DockPanel DockPanel.Dock="Top">
-                    <Slider Name="McScroller" Orientation="Horizontal"  DockPanel.Dock="Left"
-                        Width ="250" Height="30"
-                        Margin="10"  
-                        Maximum="100" Minimum="0" ValueChanged="McScroller_ValueChanged"/>
-                    <TextBlock Width="150" Height="20" DockPanel.Dock="Right" Text ="{Binding ElementName=McScroller, Path=Value, UpdateSourceTrigger=PropertyChanged,StringFormat=Value {0:F2}}"/>
-                    <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged, Mode=Default}" Width="40" Margin="85 5 10 5" BorderThickness="1" HorizontalContentAlignment="Right"/>
-                    <TextBox Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged, Mode=Default}" Width="40" Margin="65 2 10 2" BorderThickness="1" HorizontalContentAlignment="Right" 
-                                         IsEnabled="{Binding IsUseValueMax}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="40"/>
+
+                        </Grid.ColumnDefinitions>
+
+                        <Slider Name="McScroller" Orientation="Horizontal" Grid.Column="0"
+                                Width ="250" Height="30"
+                                Margin="10"
+                                Maximum="100" Minimum="0" ValueChanged="McScroller_ValueChanged"/>
+
+                        <TextBlock Height="20" Grid.Column="1"  Text ="{Binding ElementName=McScroller, Path=Value, UpdateSourceTrigger=PropertyChanged,StringFormat=Value {0:F2}}"/>
+
+                        <TextBox x:Name="ValueTextBox" Text="{Binding ValueMax, UpdateSourceTrigger=PropertyChanged, Mode=Default}" Grid.Column="3" TextChanged="TextBox_TextChanged_1"
+                                 Height="30" BorderThickness="1" HorizontalContentAlignment="Right" PreviewTextInput="ValueTextBox_PreviewTextInput"/>
+                    </Grid>
                 </DockPanel>
 
                 <Button x:Name="ui_GenerateRandom" Content="Generate Random" DockPanel.Dock="Top" Margin="5 5 5 20" Click="ui_GenerateButton_Click"/>
-                <Button x:Name="ui_GenerateNormal" Content="Generate Normal" DockPanel.Dock="Top" Margin="5 5 5 20" Click="ui_GenerateNormal_Click"/>
+
+                <Grid  DockPanel.Dock="Top"  Margin="5 5 5 20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="7*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="ui_GenerateNormal" Grid.Column="0" Content="Generate Normal" Click="ui_GenerateNormal_Click"/>
+
+                    <Button x:Name="ui_GeneratePrevious" Grid.Column="2" Content="Previous" Click="ui_GeneratePrevious_Click"/>
+                </Grid>
 
                 <Grid DockPanel.Dock="Bottom">
                     <DataGrid AutoGenerateColumns="False" Margin="-10,0,-10,-75" Name="ui_dataGridRecipe" SelectionChanged="ui_dataGridRecipe_SelectionChanged">
@@ -118,7 +143,7 @@
             </DockPanel>
         </Border>
 
-        
+
         <Grid DockPanel.Dock="Bottom">
             <Button x:Name="ui_AlbumentationStart" Content="Albumentation Start" DockPanel.Dock="Top" Margin="1257,875,-1045,-875" Click="ui_AlbumentationStart_Click"/>
 

@@ -42,6 +42,7 @@ namespace Data_AugTool
         private Random _RandomGenerator = new Random();
         private List<AlbumentationInfo> _AlbumentationInfos = new List<AlbumentationInfo>();
         private ObservableCollection<AlbumentationInfo> _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
+        private List<AlbumentationInfo> _PreviousAlbumentations = new List<AlbumentationInfo>();
         private string _OutputPath = null;
         //Mat previewMat = new Mat();
         public MainWindow()
@@ -51,7 +52,7 @@ namespace Data_AugTool
             _AlbumentationInfos.AddRange(new List<AlbumentationInfo>()
             {
                 new AlbumentationInfo("Contrast", 0.5, 2.0),
-                new AlbumentationInfo("Brightness", -50.0, 100.0),
+                new AlbumentationInfo("Brightness", 0, 100.0),
                 new AlbumentationInfo("Blur", 0, 2),
                 new AlbumentationInfo("Rotation" , 0, 30),
                 new AlbumentationInfo("Rotation90"),
@@ -150,6 +151,8 @@ namespace Data_AugTool
 
         private void AlbumentationListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            McScroller.Value = 0;
+
             UpdatePreviewImage();
             UpdateSliderMinMax();
         }
@@ -389,7 +392,23 @@ namespace Data_AugTool
 
         private void McScroller_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            var selectedItem = AlbumentationListBox.SelectedItem as AlbumentationInfo;
+            int index = _AlbumentationInfos.IndexOf(selectedItem);
+
+            var slider = McScroller as Slider;
+            if (slider == null)
+                return;
+
+            // 예외처리 필요
+            _AlbumentationInfos[index].Value = slider.Value;
+
             UpdatePreviewImage();
+            UpdateSliderValue(slider.Value);
+        }
+
+        private void UpdateSliderValue(double value)
+        {
+            ValueTextBox.Text = value.ToString("F");
         }
 
         private void dataGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -429,18 +448,22 @@ namespace Data_AugTool
             {
                 if (info.IsChecked)
                 {
-                    //if (info.TypeName == "Contrast")
-                    //    info.Value = (info.ValueMax - info.ValueMin) * _RandomGenerator.NextDouble() + info.ValueMin;
-                    //else
-                    info.Value = slider.Value;
+                    ////if (info.TypeName == "Contrast")
+                    ////    info.Value = (info.ValueMax - info.ValueMin) * _RandomGenerator.NextDouble() + info.ValueMin;
+                    ////else
+                    //info.Value = slider.Value;
 
                     _GeneratedAlbumentations.Add(info);
                 }
             }
             ui_dataGridRecipe.ItemsSource = _GeneratedAlbumentations;
-
+            _PreviousAlbumentations = _GeneratedAlbumentations.ToList().ConvertAll(o => new AlbumentationInfo() { TypeName = o.TypeName, Value = o.Value, ValueMax = o.ValueMax, ValueMin = o.ValueMin });
         }
 
+        private void ui_GeneratePrevious_Click(object sender, RoutedEventArgs e)
+        {
+            ui_dataGridRecipe.ItemsSource = _PreviousAlbumentations;
+        }
 
         private void ui_dataGridRecipe_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -454,8 +477,6 @@ namespace Data_AugTool
         private void ui_AlbumentationStart_Click(object sender, RoutedEventArgs e)
         {
             var items = ListView1.ItemsSource as List<ImageInfo>;
-
-
 
             foreach (AlbumentationInfo albumentation in _GeneratedAlbumentations)
             {
@@ -485,5 +506,75 @@ namespace Data_AugTool
             public string ImageName { get; set; }
         }
 
-    }
-}
+        private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            //string text = ValueTextBox.Text;
+            //string lastText = text.Substring(0, text.Length - 1);
+            //if (lastText == ".")
+            //{
+            //    return;
+            //}
+
+            //double value = Convert.ToDouble(ValueTextBox.Text);
+
+            //var selectedItem = AlbumentationListBox.SelectedItem as AlbumentationInfo;
+            //int index = _AlbumentationInfos.IndexOf(selectedItem);
+
+            //// 예외처리 필요
+            //double valueMin = _AlbumentationInfos[index].ValueMin;
+            //double valueMax = _AlbumentationInfos[index].ValueMax;
+
+            //if (value > valueMax)
+            //{
+            //    ValueTextBox.Text = valueMax.ToString("F");
+            //}
+            //else if (value < valueMin)
+            //{
+            //    ValueTextBox.Text = valueMin.ToString("F");
+            //}
+
+            //McScroller.Value = value;
+        }
+
+        private void ValueTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            foreach (char c in e.Text)
+            {
+                if (e.Text != ".")
+                {
+                    if (!char.IsDigit(c))
+                    {
+                        e.Handled = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void CheckBox_Checked_1(object sender, RoutedEventArgs e)
+        {
+        
+                   //foreach (CheckBox Chkbox in ListBox)
+                   // {
+                   //     if (Chkbox.IsChecked == true)
+                   //     {
+                   //         ListBoxItem += Chkbox.Content.ToString();
+                   //     }
+                   // }
+
+                   // // 전체 체크하기
+                   // foreach (CheckBox Chkbox in CheckBox_Checked_1)
+                   // {
+                   //     Chkbox.IsChecked = true;
+                   // }
+
+                   // // 전체 체크해제하기
+                   // foreach (CheckBox Chkbox in CheckBox_Checked_1)
+                   // {
+                   //     Chkbox.IsChecked = false;
+                   // }
+                }
+            }
+
+        }
+   
