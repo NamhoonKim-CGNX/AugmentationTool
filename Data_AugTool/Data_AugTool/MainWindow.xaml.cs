@@ -144,11 +144,6 @@ namespace Data_AugTool
         }
 
 
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void AlbumentationListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             McScroller.Value = 0;
@@ -550,31 +545,35 @@ namespace Data_AugTool
                 }
             }
         }
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            var tempList = _AlbumentationInfos.ToList();
+            foreach (var info in tempList)
+            {
+                info.IsChecked = true;
+            }
+
+
+
+            _AlbumentationInfos = new List<AlbumentationInfo>(tempList);
+        }
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            var tempList = _AlbumentationInfos.ToList();
+            foreach (var info in tempList)
+            {
+                info.IsChecked = false;
+            }
+
+
+
+            _AlbumentationInfos = new List<AlbumentationInfo>(tempList);
+        }
 
         private void CheckBox_Checked_1(object sender, RoutedEventArgs e)
         {
-        
-                   //foreach (CheckBox Chkbox in ListBox)
-                   // {
-                   //     if (Chkbox.IsChecked == true)
-                   //     {
-                   //         ListBoxItem += Chkbox.Content.ToString();
-                   //     }
-                   // }
-
-                   // // 전체 체크하기
-                   // foreach (CheckBox Chkbox in CheckBox_Checked_1)
-                   // {
-                   //     Chkbox.IsChecked = true;
-                   // }
-
-                   // // 전체 체크해제하기
-                   // foreach (CheckBox Chkbox in CheckBox_Checked_1)
-                   // {
-                   //     Chkbox.IsChecked = false;
-                   // }
-                }
-            }
 
         }
-   
+    }
+}
+

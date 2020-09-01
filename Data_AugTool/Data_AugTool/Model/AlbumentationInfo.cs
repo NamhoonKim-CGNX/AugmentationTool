@@ -11,7 +11,19 @@ namespace Data_AugTool.Model
     public class AlbumentationInfo
     {
         public string TypeName { get; set; }
-        public bool IsChecked { get; set; }
+        //public bool IsChecked { get; set; }
+
+        private bool _isCehcked;
+        public bool IsChecked
+        {
+            get { return _isCehcked; }
+            set
+            {
+                _isCehcked = value;
+                NotifyPropertyChanged("IsChecked");
+            }
+        }
+
         public double ValueMin { get; set; }
         public double ValueMax { get; set; }       
         public bool IsUseValueMin { get; set; }
@@ -45,5 +57,15 @@ namespace Data_AugTool.Model
             IsUseValueMax = false;
             IsChecked = false;
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void NotifyPropertyChanged(String info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
     }
 }

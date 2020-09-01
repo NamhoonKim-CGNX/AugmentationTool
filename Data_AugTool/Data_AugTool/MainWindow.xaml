@@ -68,13 +68,11 @@
 
 
         </Border>
-
         <Border Grid.Row="1" Grid.Column="3" Grid.RowSpan="2" Margin="1">
-
-          
+         
             <DockPanel Margin="20, 0, 20, 0" LastChildFill="True">
-                <CheckBox IsChecked="False" Content="Select All" DockPanel.Dock="Top" HorizontalAlignment="Right" Checked="CheckBox_Checked_1">
-                    
+                <CheckBox Content="Select All" DockPanel.Dock="Top" HorizontalAlignment="Right" Checked="CheckBox_Checked_1"  Unchecked="CheckBox_Unchecked" IsChecked="True">
+              
                 </CheckBox>
                 
                 <ListBox x:Name="AlbumentationListBox" Margin="10"  DockPanel.Dock="Top" Height="450"
