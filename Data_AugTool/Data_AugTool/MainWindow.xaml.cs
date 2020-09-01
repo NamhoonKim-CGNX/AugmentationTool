@@ -545,7 +545,7 @@ namespace Data_AugTool
                 }
             }
         }
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        private void CheckBox_Checked_1(object sender, RoutedEventArgs e)
         {
             var tempList = _AlbumentationInfos.ToList();
             foreach (var info in tempList)
@@ -553,10 +553,9 @@ namespace Data_AugTool
                 info.IsChecked = true;
             }
 
-
-
             _AlbumentationInfos = new List<AlbumentationInfo>(tempList);
         }
+ 
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             var tempList = _AlbumentationInfos.ToList();
@@ -570,10 +569,7 @@ namespace Data_AugTool
             _AlbumentationInfos = new List<AlbumentationInfo>(tempList);
         }
 
-        private void CheckBox_Checked_1(object sender, RoutedEventArgs e)
-        {
-
-        }
+  
     }
 }
 
