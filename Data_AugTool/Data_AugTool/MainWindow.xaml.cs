@@ -172,7 +172,6 @@ namespace Data_AugTool
             // slider.TickFrequency
         }
 
-        private Slider _Slider;
         private void UpdatePreviewImage()
         {
             var listbox = AlbumentationListBox as ListBox;
@@ -191,10 +190,7 @@ namespace Data_AugTool
             if (slider == null)
                 return;
 
-            // 추후 수정
-            _Slider = slider;
-
-            Mat previewMat = Recipe(selectedImageInfo.ImageName, listBoxSelectedItem.TypeName);
+            Mat previewMat = Recipe(selectedImageInfo.ImageName, listBoxSelectedItem.Value, listBoxSelectedItem.TypeName);
             // 기존에 알고리즘 구현되었던 곳
             #region
             ////var originalImage = new BitmapImage(new Uri(selectedImageInfo.ImageName));
@@ -290,7 +286,7 @@ namespace Data_AugTool
 
         }
 
-        private Mat Recipe(string path, string option)
+        private Mat Recipe(string path, double value, string option)
         {
             //var originalImage = new BitmapImage(new Uri(selectedImageInfo.ImageName));
             Mat orgMat = new Mat(path);
@@ -303,16 +299,16 @@ namespace Data_AugTool
             switch (option)
             {
                 case "Contrast":
-                    Cv2.AddWeighted(orgMat, _Slider.Value, orgMat, 0, 0, previewMat);
+                    Cv2.AddWeighted(orgMat, value, orgMat, 0, 0, previewMat);
                     break;
                 case "Brightness":
-                    Cv2.Add(orgMat, _Slider.Value, previewMat);
+                    Cv2.Add(orgMat, value, previewMat);
                     break;
                 case "Blur":
-                    Cv2.GaussianBlur(orgMat, previewMat, new OpenCvSharp.Size(9, 9), _Slider.Value, 1, BorderTypes.Default);
+                    Cv2.GaussianBlur(orgMat, previewMat, new OpenCvSharp.Size(9, 9), value, 1, BorderTypes.Default);
                     break;
                 case "Rotation":
-                    matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), _Slider.Value, 1.0);
+                    matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), value, 1.0);
                     Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Cubic);
                     break;
                 case "Rotation90":
@@ -327,7 +323,7 @@ namespace Data_AugTool
                     break;
                 case "Noise":
                     matrix = new Mat(orgMat.Size(), MatType.CV_8UC3);
-                    Cv2.Randn(matrix, Scalar.All(0), Scalar.All(_Slider.Value));         //정규분포를 나타내는 이미지를 랜덤하게 생성
+                    Cv2.Randn(matrix, Scalar.All(0), Scalar.All(value));         //정규분포를 나타내는 이미지를 랜덤하게 생성
                     Cv2.AddWeighted(orgMat, 1, matrix, 1, 0, previewMat);               //두 이미지를 가중치를 설정하여 합침
                     break;
                 case "Zoom In":
@@ -488,7 +484,7 @@ namespace Data_AugTool
                         System.IO.Directory.CreateDirectory(subDirectoryName);
                     }
                     string renameFile = fileName + "_" + albumentation.TypeName + fileExtention;
-                    Mat previewMat = Recipe(imageInfo.ImageName, albumentation.TypeName);
+                    Mat previewMat = Recipe(imageInfo.ImageName, albumentation.Value, albumentation.TypeName);
                     previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
 
                 }
