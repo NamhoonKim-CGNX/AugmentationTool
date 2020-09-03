@@ -141,12 +141,10 @@
             </DockPanel>
         </Border>
 
-
-        <Grid DockPanel.Dock="Bottom">
-            <Button x:Name="ui_AlbumentationStart" Content="Albumentation Start" DockPanel.Dock="Top" Margin="1257,875,-1045,-875" Click="ui_AlbumentationStart_Click"/>
+        <Grid Grid.Row="3" Grid.Column="3">
+            <Button x:Name="ui_AlbumentationStart" Content="Albumentation Start" DockPanel.Dock="Top" Click="ui_AlbumentationStart_Click" Height="35" Margin="10 30 10 0"/>
 
         </Grid>
-
 
     </Grid>
 

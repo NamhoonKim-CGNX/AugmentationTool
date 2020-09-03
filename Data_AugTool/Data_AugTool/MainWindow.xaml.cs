@@ -195,6 +195,7 @@ namespace Data_AugTool
             _Slider = slider;
 
             Mat previewMat = Recipe(selectedImageInfo.ImageName, listBoxSelectedItem.TypeName);
+            // 기존에 알고리즘 구현되었던 곳
             #region
             ////var originalImage = new BitmapImage(new Uri(selectedImageInfo.ImageName));
             //Mat orgMat = new Mat(selectedImageInfo.ImageName);
@@ -281,7 +282,7 @@ namespace Data_AugTool
             //    default:
             //        break;
             //}
-            #endregion
+            #endregion 기존 알고리즘 구현 되었던 곳
             if (previewMat.Width == 0 || previewMat.Height == 0)
                 return;
 
