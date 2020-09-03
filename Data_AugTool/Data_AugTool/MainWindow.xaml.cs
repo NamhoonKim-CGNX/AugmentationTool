@@ -502,47 +502,68 @@ namespace Data_AugTool
             public string ImageName { get; set; }
         }
 
+
+        private void ValueTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                string text = ValueTextBox.Text;
+                if (string.IsNullOrWhiteSpace(text) || string.IsNullOrEmpty(text))
+                {
+                    text = "0";
+                }
+
+                string lastText = text.Substring(text.Length - 1, 1);
+                double value = 0;
+                if (lastText == ".")
+                {
+                    value = Convert.ToDouble(text + "00");
+                }
+                else
+                {
+                    value = Convert.ToDouble(text);
+                }
+
+                var selectedItem = AlbumentationListBox.SelectedItem as AlbumentationInfo;
+                int index = _AlbumentationInfos.IndexOf(selectedItem);
+
+                double valueMin = _AlbumentationInfos[index].ValueMin;
+                double valueMax = _AlbumentationInfos[index].ValueMax;
+
+                if (value > valueMax)
+                {
+                    ValueTextBox.Text = valueMax.ToString("F");
+                }
+                else if (value < valueMin)
+                {
+                    ValueTextBox.Text = valueMin.ToString("F");
+                }
+
+                McScroller.Value = value;
+            }
+        }
+
         private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e)
         {
-            //string text = ValueTextBox.Text;
-            //string lastText = text.Substring(0, text.Length - 1);
-            //if (lastText == ".")
-            //{
-            //    return;
-            //}
 
-            //double value = Convert.ToDouble(ValueTextBox.Text);
-
-            //var selectedItem = AlbumentationListBox.SelectedItem as AlbumentationInfo;
-            //int index = _AlbumentationInfos.IndexOf(selectedItem);
-
-            //// 예외처리 필요
-            //double valueMin = _AlbumentationInfos[index].ValueMin;
-            //double valueMax = _AlbumentationInfos[index].ValueMax;
-
-            //if (value > valueMax)
-            //{
-            //    ValueTextBox.Text = valueMax.ToString("F");
-            //}
-            //else if (value < valueMin)
-            //{
-            //    ValueTextBox.Text = valueMin.ToString("F");
-            //}
-
-            //McScroller.Value = value;
         }
 
         private void ValueTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            foreach (char c in e.Text)
+            // 숫자, Backspace, . 만 입력
+
+            if (e.Text == ".")
             {
-                if (e.Text != ".")
+                if (ValueTextBox.Text.Contains("."))
                 {
-                    if (!char.IsDigit(c))
-                    {
-                        e.Handled = true;
-                        break;
-                    }
+                    e.Handled = true;
+                }
+            }
+            else
+            {
+                if (!char.IsDigit(e.Text[0]))
+                {
+                    e.Handled = true;
                 }
             }
         }
@@ -556,7 +577,7 @@ namespace Data_AugTool
 
             _AlbumentationInfos = new List<AlbumentationInfo>(tempList);
         }
- 
+
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             var tempList = _AlbumentationInfos.ToList();
@@ -570,7 +591,6 @@ namespace Data_AugTool
             _AlbumentationInfos = new List<AlbumentationInfo>(tempList);
         }
 
-  
     }
 }
 
