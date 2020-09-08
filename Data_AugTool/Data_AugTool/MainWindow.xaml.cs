@@ -51,17 +51,17 @@ namespace Data_AugTool
 
             _AlbumentationInfos.AddRange(new List<AlbumentationInfo>()
             {
-                new AlbumentationInfo("Contrast", 0.5, 2.0),
+                new AlbumentationInfo("Contrast", 0.5, 5.0),
                 new AlbumentationInfo("Brightness", 0, 100.0),
-                new AlbumentationInfo("Blur", 0, 2),
-                new AlbumentationInfo("Rotation" , 0, 30),
+                new AlbumentationInfo("Blur", 0, 100),
+                new AlbumentationInfo("Rotation" , 0, 360),
                 new AlbumentationInfo("Rotation90"),
                 new AlbumentationInfo("Horizontal Flip"),
                 new AlbumentationInfo("Vertical Flip"),
-                new AlbumentationInfo("Noise", 0.0, 20.0),
+                new AlbumentationInfo("Noise", 0.0, 100.0),
                 new AlbumentationInfo("Zoom In"),
-                new AlbumentationInfo("Sharpen"),
-                new AlbumentationInfo("CLAHE"),
+                new AlbumentationInfo("Sharpen", 0, 100),
+                new AlbumentationInfo("CLAHE",0, 100),
 
             });
             foreach (var item in _AlbumentationInfos)
@@ -309,11 +309,11 @@ namespace Data_AugTool
                     break;
                 case "Rotation":
                     matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), value, 1.0);
-                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Cubic);
+                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height),InterpolationFlags.Cubic);
                     break;
                 case "Rotation90":
                     matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), 90, 1.0);
-                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Cubic);
+                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height));
                     break;
                 case "Horizontal Flip":
                     Cv2.Flip(orgMat, previewMat, FlipMode.Y);
