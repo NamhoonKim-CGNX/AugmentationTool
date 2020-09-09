@@ -309,11 +309,11 @@ namespace Data_AugTool
                     break;
                 case "Rotation":
                     matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), value, 1.0);
-                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height),InterpolationFlags.Cubic);
+                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Linear, BorderTypes.Replicate);
                     break;
                 case "Rotation90":
                     matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), 90, 1.0);
-                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height));
+                    Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Linear, BorderTypes.Reflect);
                     break;
                 case "Horizontal Flip":
                     Cv2.Flip(orgMat, previewMat, FlipMode.Y);
@@ -333,10 +333,13 @@ namespace Data_AugTool
                     double height_param = (int)(0.8 * orgMat.Height); // 0.8이 배율 orgMat.Height 원본이미지의 사이즈 //
                     int startX = orgMat.Width - (int)width_param;// 이미지를 Crop해올 좌상단 위치 지정하는값 // 원본사이즈 - 배율로 감소한 사이즈
                     int startY = orgMat.Height - (int)height_param;//
-                    Mat tempMat = new Mat(orgMat, new OpenCvSharp.Rect(startX, startY, (int)width_param, (int)height_param));//중간과정 mat이고 Rect안에 x,y,width,height 값 지정해주는거
-                    //예외처리 범위 밖으로 벗어나는경우 shift시키거나 , 제로페딩을 시키거나
-                    //예외처리                 
-                    Cv2.Resize(tempMat, previewMat, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), (double)((double)orgMat.Width / (double)width_param), (double)((double)orgMat.Height / (double)height_param), InterpolationFlags.Cubic);
+                    Mat tempMat = new Mat(orgMat, new OpenCvSharp.Rect(startX, startY, (int)width_param - (int)(0.2 * orgMat.Width), (int)height_param - (int)(0.2 * orgMat.Height)));//중간과정 mat이고 Rect안에 x,y,width,height 값 지정해주는거
+                                                                                                                                                                                  //예외처리 범위 밖으로 벗어나는경우 shift시키거나 , 제로페딩을 시키거나
+                                                                                                                                                                                  //예외처리                 
+                    Cv2.Resize(tempMat, previewMat, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), (double)((double)orgMat.Width / (double)(width_param - (int)(0.2 * orgMat.Width))), 
+                        (double)((double)orgMat.Height / ((double)(height_param - (int)(0.2 * orgMat.Height)))), InterpolationFlags.Cubic);
+
+
                     // (double) ( (double)orgMat.Width  /  (double)width_param)
                     // 형변환       원본이미지 형변환      /       타겟이미지 배율    == 타겟이미지가 원본이미지 대비 몇배인가? 의 수식임
                     // (double) ( (double)orgMat.Height  /  (double)height_param)
