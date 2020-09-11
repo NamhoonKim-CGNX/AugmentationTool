@@ -91,16 +91,17 @@ namespace Data_AugTool
                 files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
 
                 textBox.Text = path;
+
+                string[] imageFormat = new string[] { "jpg", "jpeg", "png", "bmp", "tif", "tiff" };
+                var imageFiles = files.Where(file => imageFormat.Any(extension => file.ToLower().EndsWith(extension))).ToList();
+                List<ImageInfo> items = new List<ImageInfo>();
+                for (int i = 0; i < imageFiles.Count(); i++)
+                {
+                    items.Add(new ImageInfo() { ImageNumber = i + 1, ImageName = imageFiles[i] });
+                }
+                ListView1.ItemsSource = items;
+                Dynamic2.Source = new BitmapImage(new Uri(items[0].ImageName));
             }
-            string[] imageFormat = new string[] { "jpg", "jpeg", "png", "bmp", "tif", "tiff" };
-            var imageFiles = files.Where(file => imageFormat.Any(extension => file.ToLower().EndsWith(extension))).ToList();
-            List<ImageInfo> items = new List<ImageInfo>();
-            for (int i = 0; i < imageFiles.Count(); i++)
-            {
-                items.Add(new ImageInfo() { ImageNumber = i + 1, ImageName = imageFiles[i] });
-            }
-            ListView1.ItemsSource = items;
-            Dynamic2.Source = new BitmapImage(new Uri(items[0].ImageName));
         }
 
         private void btnLoadFromOutput_Click(object sender, RoutedEventArgs e)
@@ -115,7 +116,7 @@ namespace Data_AugTool
                 textBox2.Text = _OutputPath;
             }
 
-        }
+        }   
 
         private void ListView1_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
         {
@@ -135,10 +136,14 @@ namespace Data_AugTool
                 var selectedItem = ListView1.SelectedItem as ImageInfo;
                 if (selectedItem == null)
                     return;
-
+                ListView1.BeginInit();
                 var items = ListView1.ItemsSource as List<ImageInfo>;
                 items.Remove(selectedItem);
+                TextBox test = new TextBox();
                 ListView1.ItemsSource = items;
+                int index = 1;
+                items.ForEach(x => x.ImageNumber = index++);
+                ListView1.EndInit();
             }
 
         }
@@ -334,9 +339,9 @@ namespace Data_AugTool
                     int startX = orgMat.Width - (int)width_param;// 이미지를 Crop해올 좌상단 위치 지정하는값 // 원본사이즈 - 배율로 감소한 사이즈
                     int startY = orgMat.Height - (int)height_param;//
                     Mat tempMat = new Mat(orgMat, new OpenCvSharp.Rect(startX, startY, (int)width_param - (int)(0.2 * orgMat.Width), (int)height_param - (int)(0.2 * orgMat.Height)));//중간과정 mat이고 Rect안에 x,y,width,height 값 지정해주는거
-                                                                                                                                                                                  //예외처리 범위 밖으로 벗어나는경우 shift시키거나 , 제로페딩을 시키거나
-                                                                                                                                                                                  //예외처리                 
-                    Cv2.Resize(tempMat, previewMat, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), (double)((double)orgMat.Width / (double)(width_param - (int)(0.2 * orgMat.Width))), 
+                                                                                                                                                                                      //예외처리 범위 밖으로 벗어나는경우 shift시키거나 , 제로페딩을 시키거나
+                                                                                                                                                                                      //예외처리                 
+                    Cv2.Resize(tempMat, previewMat, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), (double)((double)orgMat.Width / (double)(width_param - (int)(0.2 * orgMat.Width))),
                         (double)((double)orgMat.Height / ((double)(height_param - (int)(0.2 * orgMat.Height)))), InterpolationFlags.Cubic);
 
 
@@ -356,15 +361,19 @@ namespace Data_AugTool
                 // Contrast Limited Adapative Histogram Equalization
                 case "CLAHE":
                     CLAHE test = Cv2.CreateCLAHE();
-                    test.SetClipLimit(700.0f);
-                    test.SetTilesGridSize(new OpenCvSharp.Size(4.0, 4.0));
+                    test.SetClipLimit(10.0f);
+                    if (value < 1)
+                        value = 1;
+                    test.SetTilesGridSize(new OpenCvSharp.Size(value, value));
                     Mat normalized = new Mat();
                     Mat temp = new Mat();
-                    orgMat.ConvertTo(temp, MatType.CV_16UC1);
-                    Cv2.CvtColor(temp, temp, ColorConversionCodes.BGR2GRAY);
-                    test.Apply(temp, previewMat);
-                    //previewMat.ConvertTo(previewMat, MatType.CV_8U);
-                    Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.GRAY2BGR);
+                    Cv2.CvtColor(orgMat, orgMat, ColorConversionCodes.RGB2HSV);
+                    var splitedMat = orgMat.Split();
+
+                    test.Apply(splitedMat[2], splitedMat[2]);
+                    Cv2.Merge(splitedMat, previewMat);
+                    Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.HSV2RGB);
+                    //Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.GRAY2BGR);
                     break;
 
                 default:
