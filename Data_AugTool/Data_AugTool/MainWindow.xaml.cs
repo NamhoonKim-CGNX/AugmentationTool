@@ -94,6 +94,9 @@ namespace Data_AugTool
 
                 string[] imageFormat = new string[] { "jpg", "jpeg", "png", "bmp", "tif", "tiff" };
                 var imageFiles = files.Where(file => imageFormat.Any(extension => file.ToLower().EndsWith(extension))).ToList();
+                if (imageFiles.Count == 0)
+                    return;
+
                 List<ImageInfo> items = new List<ImageInfo>();
                 for (int i = 0; i < imageFiles.Count(); i++)
                 {
@@ -112,11 +115,10 @@ namespace Data_AugTool
 
             if (openFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                _OutputPath = openFileDialog.FileName;
-                textBox2.Text = _OutputPath;
+                textBox2.Text = openFileDialog.FileName;
             }
 
-        }   
+        }
 
         private void ListView1_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
         {
@@ -196,110 +198,20 @@ namespace Data_AugTool
                 return;
 
             Mat previewMat = Recipe(selectedImageInfo.ImageName, listBoxSelectedItem.Value, listBoxSelectedItem.TypeName);
-            // 기존에 알고리즘 구현되었던 곳
-            #region
-            ////var originalImage = new BitmapImage(new Uri(selectedImageInfo.ImageName));
-            //Mat orgMat = new Mat(selectedImageInfo.ImageName);
-            ////Mat previewMat = new Mat();
-
-
-            //ui_PreviewImage.Source = new BitmapImage(new Uri(selectedImageInfo.ImageName));
-            //Mat matrix;
-            //switch (listBoxSelectedItem.TypeName)
-            //{
-            //    case "Contrast":
-            //        Cv2.AddWeighted(orgMat, slider.Value, orgMat, 0, 0, previewMat);
-            //        break;
-            //    case "Brightness":
-            //        Cv2.Add(orgMat, slider.Value, previewMat);
-            //        break;
-            //    case "Blur":
-            //        Cv2.GaussianBlur(orgMat, previewMat, new OpenCvSharp.Size(9, 9), slider.Value, 1, BorderTypes.Default);
-            //        break;
-            //    case "Rotation":
-            //        matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), slider.Value, 1.0);
-            //        Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Cubic);
-            //        break;
-            //    case "Rotation90":
-            //        matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), 90, 1.0);
-            //        Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Cubic);
-            //        break;
-            //    case "Horizontal Flip":
-            //        Cv2.Flip(orgMat, previewMat, FlipMode.Y);
-            //        break;
-            //    case "Vertical Flip":
-            //        Cv2.Flip(orgMat, previewMat, FlipMode.X);
-            //        break;
-            //    case "Noise":
-            //        matrix = new Mat(orgMat.Size(), MatType.CV_8UC3);
-            //        Cv2.Randn(matrix, Scalar.All(0), Scalar.All(slider.Value));         //정규분포를 나타내는 이미지를 랜덤하게 생성
-            //        Cv2.AddWeighted(orgMat, 1, matrix, 1, 0, previewMat);               //두 이미지를 가중치를 설정하여 합침
-            //        break;
-            //    case "Zoom In":
-            //        //Cv2.PyrDown(orgMat, previewMat);
-            //        //#1. Center만 확대
-            //        double width_param = (int)(0.8 * orgMat.Width); // 0.8이 배율 orgMat.Width이 원본이미지의 사이즈 // 나중에 0.8만 80%형식으로 바꿔서 파라미터로 빼야됨
-            //        double height_param = (int)(0.8 * orgMat.Height); // 0.8이 배율 orgMat.Height 원본이미지의 사이즈 //
-            //        int startX = orgMat.Width - (int)width_param;// 이미지를 Crop해올 좌상단 위치 지정하는값 // 원본사이즈 - 배율로 감소한 사이즈
-            //        int startY = orgMat.Height - (int)height_param;//
-            //        Mat tempMat = new Mat(orgMat, new OpenCvSharp.Rect(startX, startY, (int)width_param, (int)height_param));//중간과정 mat이고 Rect안에 x,y,width,height 값 지정해주는거
-            //        //예외처리 범위 밖으로 벗어나는경우 shift시키거나 , 제로페딩을 시키거나
-            //        //예외처리                 
-            //        Cv2.Resize(tempMat, previewMat, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), (double)((double)orgMat.Width / (double)width_param), (double)((double)orgMat.Height / (double)height_param), InterpolationFlags.Cubic);
-            //        // (double) ( (double)orgMat.Width  /  (double)width_param)
-            //        // 형변환       원본이미지 형변환      /       타겟이미지 배율    == 타겟이미지가 원본이미지 대비 몇배인가? 의 수식임
-            //        // (double) ( (double)orgMat.Height  /  (double)height_param)
-            //        break;
-
-            //    case "Sharpen":
-            //        float filterBase = -1f;
-            //        float filterCenter = filterBase * -9;
-            //        float[] data = new float[9] { filterBase, filterBase, filterBase,
-            //                                      filterBase, filterCenter, filterBase,
-            //                                      filterBase, filterBase, filterBase };
-            //        Mat kernel = new Mat(3, 3, MatType.CV_32F, data);
-            //        Cv2.Filter2D(orgMat, previewMat, orgMat.Type(), kernel);
-            //        break;
-            //    case "IAASharpen":
-            //        //  Args:
-            //        //  alpha((float, float)): range to choose the visibility of the sharpened image.At 0, only the original image is
-            //        //    visible, at 1.0 only its sharpened version is visible.Default: (0.2, 0.5).
-            //        // lightness((float, float)): range to choose the lightness of the sharpened image.Default: (0.5, 1.0).
-            //        //  p(float): probability of applying the transform.Default: 0.5.
-            //        break;
-            //    // Contrast Limited Adapative Histogram Equalization
-            //    case "CLAHE":
-            //        CLAHE test = Cv2.CreateCLAHE();
-            //        test.SetClipLimit(700.0f);
-            //        test.SetTilesGridSize(new OpenCvSharp.Size(4.0, 4.0));
-            //        Mat normalized = new Mat();
-            //        Mat temp = new Mat();
-            //        orgMat.ConvertTo(temp, MatType.CV_16UC1);
-            //        Cv2.CvtColor(temp, temp, ColorConversionCodes.BGR2GRAY);
-            //        test.Apply(temp, previewMat);
-            //        //previewMat.ConvertTo(previewMat, MatType.CV_8U);
-            //        Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.GRAY2BGR);
-            //        break;
-            //    default:
-            //        break;
-            //}
-            #endregion 기존 알고리즘 구현 되었던 곳
             if (previewMat.Width == 0 || previewMat.Height == 0)
                 return;
 
             ui_PreviewImage.Source = previewMat.ToBitmapSource();
-
+            previewMat.Dispose();
         }
 
         private Mat Recipe(string path, double value, string option)
         {
-            //var originalImage = new BitmapImage(new Uri(selectedImageInfo.ImageName));
-            Mat orgMat = new Mat(path);
-            //Mat previewMat = new Mat();
 
+            Mat orgMat = new Mat(path);
             Mat previewMat = new Mat();
+
             #region //Algorithm
-            //ui_PreviewImage.Source = new BitmapImage(new Uri(selectedImageInfo.ImageName));
             Mat matrix;
             switch (option)
             {
@@ -343,8 +255,6 @@ namespace Data_AugTool
                                                                                                                                                                                       //예외처리                 
                     Cv2.Resize(tempMat, previewMat, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), (double)((double)orgMat.Width / (double)(width_param - (int)(0.2 * orgMat.Width))),
                         (double)((double)orgMat.Height / ((double)(height_param - (int)(0.2 * orgMat.Height)))), InterpolationFlags.Cubic);
-
-
                     // (double) ( (double)orgMat.Width  /  (double)width_param)
                     // 형변환       원본이미지 형변환      /       타겟이미지 배율    == 타겟이미지가 원본이미지 대비 몇배인가? 의 수식임
                     // (double) ( (double)orgMat.Height  /  (double)height_param)
@@ -373,13 +283,13 @@ namespace Data_AugTool
                     test.Apply(splitedMat[2], splitedMat[2]);
                     Cv2.Merge(splitedMat, previewMat);
                     Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.HSV2RGB);
-                    //Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.GRAY2BGR);
+
                     break;
 
                 default:
                     break;
             }
-
+            orgMat.Dispose();
             return previewMat;
         }
         #endregion
@@ -397,13 +307,18 @@ namespace Data_AugTool
         private void McScroller_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             var selectedItem = AlbumentationListBox.SelectedItem as AlbumentationInfo;
+            if (selectedItem == null)
+                return;
+
             int index = _AlbumentationInfos.IndexOf(selectedItem);
 
             var slider = McScroller as Slider;
             if (slider == null)
                 return;
 
-            // 예외처리 필요
+            if (index < 0)
+                return;
+         
             _AlbumentationInfos[index].Value = slider.Value;
 
             UpdatePreviewImage();
@@ -422,22 +337,30 @@ namespace Data_AugTool
 
         private void ui_GenerateButton_Click(object sender, RoutedEventArgs e)
         {
-            _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
+            if (_GeneratedAlbumentations == null)
+                _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
             foreach (var info in _AlbumentationInfos)
             {
                 if (info.IsChecked)
                 {
+                    if (info.ValueMin > info.ValueMax)
+                        (info.ValueMin, info.ValueMax) = (info.ValueMax, info.ValueMin);
+
                     if (info.TypeName == "Contrast")
                         info.Value = (info.ValueMax - info.ValueMin) * _RandomGenerator.NextDouble() + info.ValueMin;
                     else
                         info.Value = _RandomGenerator.Next((int)info.ValueMin, (int)info.ValueMax + 1);
 
-                    _GeneratedAlbumentations.Add(info);
+                    if (!_GeneratedAlbumentations.Any(x => x.TypeName == info.TypeName && x.Value == info.Value))
+                    {
+                        var newItem = new AlbumentationInfo(info.TypeName, info.ValueMin, info.ValueMax, info.IsUseValueMin, info.IsUseValueMax);
+                        newItem.Value = info.Value;
+                        _GeneratedAlbumentations.Add(newItem);
+                    }
                 }
             }
             ui_dataGridRecipe.ItemsSource = _GeneratedAlbumentations;
 
-            //McScroller.Value = _GeneratedAlbumentations[0].Value;
         }
 
         private void ui_GenerateNormal_Click(object sender, RoutedEventArgs e)
@@ -447,21 +370,23 @@ namespace Data_AugTool
             if (slider == null)
                 return;
 
-            _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
+            if (_GeneratedAlbumentations == null)
+                _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
             foreach (var info in _AlbumentationInfos)
             {
                 if (info.IsChecked)
                 {
-                    ////if (info.TypeName == "Contrast")
-                    ////    info.Value = (info.ValueMax - info.ValueMin) * _RandomGenerator.NextDouble() + info.ValueMin;
-                    ////else
-                    //info.Value = slider.Value;
-
-                    _GeneratedAlbumentations.Add(info);
+                    if (!_GeneratedAlbumentations.Any(x => x.TypeName == info.TypeName && x.Value == info.Value))
+                    {
+                        var newItem = new AlbumentationInfo(info.TypeName, info.ValueMin, info.ValueMax, info.IsUseValueMin, info.IsUseValueMax);
+                        newItem.Value = info.Value;
+                        _GeneratedAlbumentations.Add(newItem);
+                    }
                 }
             }
             ui_dataGridRecipe.ItemsSource = _GeneratedAlbumentations;
-            _PreviousAlbumentations = _GeneratedAlbumentations.ToList().ConvertAll(o => new AlbumentationInfo() { TypeName = o.TypeName, Value = o.Value, ValueMax = o.ValueMax, ValueMin = o.ValueMin });
+            _PreviousAlbumentations = _GeneratedAlbumentations.ToList().ConvertAll(o => new AlbumentationInfo()
+            { TypeName = o.TypeName, Value = o.Value, ValueMax = o.ValueMax, ValueMin = o.ValueMin });
         }
 
         private void ui_GeneratePrevious_Click(object sender, RoutedEventArgs e)
@@ -481,6 +406,10 @@ namespace Data_AugTool
         private void ui_AlbumentationStart_Click(object sender, RoutedEventArgs e)
         {
             var items = ListView1.ItemsSource as List<ImageInfo>;
+            if (string.IsNullOrWhiteSpace(textBox2.Text))
+            {
+                textBox2.Text = System.IO.Path.Combine(textBox.Text, "Result");
+            }
 
             foreach (AlbumentationInfo albumentation in _GeneratedAlbumentations)
             {
@@ -490,15 +419,14 @@ namespace Data_AugTool
                 {
                     string fileName = System.IO.Path.GetFileNameWithoutExtension(imageInfo.ImageName);
                     string fileExtention = System.IO.Path.GetExtension(imageInfo.ImageName);
-                    string subDirectoryName = System.IO.Path.Combine(_OutputPath, albumentation.TypeName);
+                    string subDirectoryName = System.IO.Path.Combine(textBox2.Text, albumentation.TypeName);
                     if (!Directory.Exists(subDirectoryName))
                     {
                         System.IO.Directory.CreateDirectory(subDirectoryName);
                     }
-                    string renameFile = fileName + "_" + albumentation.TypeName + fileExtention;
+                    string renameFile = $"{fileName}_{albumentation.TypeName}_{albumentation.Value.ToString("F02")}_{fileExtention}";
                     Mat previewMat = Recipe(imageInfo.ImageName, albumentation.Value, albumentation.TypeName);
                     previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
-
                 }
             }
         }
@@ -533,7 +461,13 @@ namespace Data_AugTool
                 }
 
                 var selectedItem = AlbumentationListBox.SelectedItem as AlbumentationInfo;
+                if (selectedItem == null)
+                    return;
+
                 int index = _AlbumentationInfos.IndexOf(selectedItem);
+
+                if (index < 0 || index >= _AlbumentationInfos.Count)
+                    return;
 
                 double valueMin = _AlbumentationInfos[index].ValueMin;
                 double valueMax = _AlbumentationInfos[index].ValueMax;

@@ -114,8 +114,9 @@
                     </Grid>
                 </DockPanel>
 
-
-
+                <Grid  DockPanel.Dock="Top"  Margin="5 5 5 20">
+                    <Button x:Name="ui_GenerateNormal" Grid.Column="0" Content="Generate Normal" Click="ui_GenerateNormal_Click"/>
+                </Grid>
                 <Grid  DockPanel.Dock="Top"  Margin="5 5 5 20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="7*"/>
@@ -123,21 +124,18 @@
                         <ColumnDefinition Width="3*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="ui_GenerateRandom" Content="Generate Random" Click="ui_GenerateButton_Click"/>
+                    <Button x:Name="ui_GenerateRandom" Content="Generate Random" Click="ui_GenerateButton_Click" Grid.ColumnSpan="3"/>
 
-                    <Button x:Name="ui_GeneratePrevious" Grid.Column="2" Content="Previous" Click="ui_GeneratePrevious_Click"/>
+                    <Button x:Name="ui_GeneratePrevious" Grid.Column="2" Content="Previous" Click="ui_GeneratePrevious_Click"
+                            Visibility="Collapsed"/>
                 </Grid>
-
-                <Grid  DockPanel.Dock="Top"  Margin="5 5 5 20">
-                    <Button x:Name="ui_GenerateNormal" Grid.Column="0" Content="Generate Normal" Click="ui_GenerateNormal_Click"/>
-                </Grid>
-
                 <Grid DockPanel.Dock="Bottom">
-                    <DataGrid AutoGenerateColumns="False" Margin="-10,0,-10,-75" Name="ui_dataGridRecipe" SelectionChanged="ui_dataGridRecipe_SelectionChanged">
+                    <DataGrid AutoGenerateColumns="False" Margin="-10,0,-10,-75" Name="ui_dataGridRecipe" SelectionChanged="ui_dataGridRecipe_SelectionChanged"
+                              CanUserAddRows="False">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="TypeName" Width="70" Binding="{Binding Path=TypeName}"/>
-                            <DataGridTextColumn Header="Minmum" Width="90" Binding="{Binding Path=ValueMin}"/>
-                            <DataGridTextColumn Header="Maxmum" Width="90" Binding="{Binding Path=ValueMax}"/>
+                            <DataGridTextColumn Header="TypeName" Width="70" Binding="{Binding Path=TypeName}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Minmum" Width="90" Binding="{Binding Path=ValueMin}" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Maxmum" Width="90" Binding="{Binding Path=ValueMax}" IsReadOnly="True"/>
                             <DataGridTextColumn Header="Value" Width="80" Binding="{Binding Path=Value,StringFormat={}{0:F2}}"/>
                         </DataGrid.Columns>
                     </DataGrid>
