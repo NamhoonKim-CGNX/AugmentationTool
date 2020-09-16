@@ -37,8 +37,8 @@
                   KeyDown="ListView1_KeyDown">
             <ListView.View>
                 <GridView AllowsColumnReorder="True">
-                    <GridViewColumn  Header="No" Width="35" DisplayMemberBinding="{Binding ImageNumber}"/>
-                    <GridViewColumn  Header="File Name" Width="590" DisplayMemberBinding="{Binding ImageName}"/>
+                    <GridViewColumn  Header="No" Width="40" DisplayMemberBinding="{Binding ImageNumber}"/>
+                    <GridViewColumn  Header="File Name" Width="680" DisplayMemberBinding="{Binding ImageName}"/>
                 </GridView>
             </ListView.View>
         </ListView>
@@ -133,10 +133,10 @@
                     <DataGrid AutoGenerateColumns="False" Margin="-10,0,-10,-75" Name="ui_dataGridRecipe" SelectionChanged="ui_dataGridRecipe_SelectionChanged"
                               CanUserAddRows="False">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="TypeName" Width="70" Binding="{Binding Path=TypeName}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Minmum" Width="90" Binding="{Binding Path=ValueMin}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Maxmum" Width="90" Binding="{Binding Path=ValueMax}" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Value" Width="80" Binding="{Binding Path=Value,StringFormat={}{0:F2}}"/>
+                            <DataGridTextColumn Header="TypeName" Width="1*" Binding="{Binding Path=TypeName}" IsReadOnly="True" MinWidth="90"/>
+                            <DataGridTextColumn Header="Minmum" Width="1*" Binding="{Binding Path=ValueMin}" IsReadOnly="True" MinWidth="90"/>
+                            <DataGridTextColumn Header="Maxmum" Width="1*" Binding="{Binding Path=ValueMax}" IsReadOnly="True" MinWidth="90"/>
+                            <DataGridTextColumn Header="Value" Width="" Binding="{Binding Path=Value,StringFormat={}{0:F2}}" MinWidth="90"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

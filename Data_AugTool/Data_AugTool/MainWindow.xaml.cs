@@ -244,7 +244,6 @@ namespace Data_AugTool
                     Cv2.AddWeighted(orgMat, 1, matrix, 1, 0, previewMat);               //두 이미지를 가중치를 설정하여 합침
                     break;
                 case "Zoom In":
-                    //Cv2.PyrDown(orgMat, previewMat);
                     //#1. Center만 확대
                     double width_param = (int)(0.8 * orgMat.Width); // 0.8이 배율 orgMat.Width이 원본이미지의 사이즈 // 나중에 0.8만 80%형식으로 바꿔서 파라미터로 빼야됨
                     double height_param = (int)(0.8 * orgMat.Height); // 0.8이 배율 orgMat.Height 원본이미지의 사이즈 //
