@@ -44,6 +44,8 @@ namespace Data_AugTool
         private ObservableCollection<AlbumentationInfo> _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
         private List<AlbumentationInfo> _PreviousAlbumentations = new List<AlbumentationInfo>();
         private string _OutputPath = null;
+        private bool _IfStop = false;
+        private bool _IsRunning = false;
         //Mat previewMat = new Mat();
         public MainWindow()
         {
@@ -88,6 +90,9 @@ namespace Data_AugTool
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 path = dialog.FileName; // 테스트용, 폴더 선택이 완료되면 선택된 폴더를 label에 출력 } 
+                if (!Directory.Exists(path))
+                    return;
+
                 files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
 
                 textBox.Text = path;
@@ -212,7 +217,7 @@ namespace Data_AugTool
             Mat previewMat = new Mat();
 
             #region //Algorithm
-            Mat matrix;
+            Mat matrix= new Mat();
             switch (option)
             {
                 case "Contrast":
@@ -288,6 +293,7 @@ namespace Data_AugTool
                 default:
                     break;
             }
+            matrix.Dispose();
             orgMat.Dispose();
             return previewMat;
         }
@@ -405,29 +411,72 @@ namespace Data_AugTool
         private void ui_AlbumentationStart_Click(object sender, RoutedEventArgs e)
         {
             var items = ListView1.ItemsSource as List<ImageInfo>;
+
+            if (items == null)
+                return;
+            
             if (string.IsNullOrWhiteSpace(textBox2.Text))
             {
                 textBox2.Text = System.IO.Path.Combine(textBox.Text, "Result");
             }
-
-            foreach (AlbumentationInfo albumentation in _GeneratedAlbumentations)
+            if (_IsRunning)
             {
-                // 파일 끝 인덱스 추가
-
-                foreach (ImageInfo imageInfo in items)
-                {
-                    string fileName = System.IO.Path.GetFileNameWithoutExtension(imageInfo.ImageName);
-                    string fileExtention = System.IO.Path.GetExtension(imageInfo.ImageName);
-                    string subDirectoryName = System.IO.Path.Combine(textBox2.Text, albumentation.TypeName);
-                    if (!Directory.Exists(subDirectoryName))
-                    {
-                        System.IO.Directory.CreateDirectory(subDirectoryName);
-                    }
-                    string renameFile = $"{fileName}_{albumentation.TypeName}_{albumentation.Value.ToString("F02")}_{fileExtention}";
-                    Mat previewMat = Recipe(imageInfo.ImageName, albumentation.Value, albumentation.TypeName);
-                    previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
-                }
+                _IfStop = true;
+                ui_AlbumentationStart.IsEnabled = false;
+                return;
             }
+            
+            _IfStop = false;
+            ui_AlbumentationStart.Content = "Albumentation Stop";
+            string outputFolder = textBox2.Text;
+            //Main_Grid.IsEnabled = false;
+
+            // progressbar 초기화
+            // text = "VerticalFlip 0번 째 처리 중"
+            ui_progressbar.Minimum = 0;
+            var progressMaxCount = _GeneratedAlbumentations.Count() * items.Count;
+            ui_progressbar.Maximum = progressMaxCount;
+            ui_ProgressText.Text = $" 0 / {progressMaxCount} ";
+
+            _IsRunning = true;
+            Task.Run(() => 
+            {
+                int n = 1;
+                foreach (AlbumentationInfo albumentation in _GeneratedAlbumentations)
+                {
+                    if (_IfStop)
+                        break;
+                    // 파일 끝 인덱스 추가
+                    foreach (ImageInfo imageInfo in items)
+                    {
+                        Dispatcher.Invoke(() => 
+                        {
+                            // progressbar 업데이트
+                            // text = "VerticalFlip n번 째 처리 중"
+                            ui_ProgressText.Text = $" {n} / {progressMaxCount} ";
+                            ui_progressbar.Value = n;
+                        });
+                        string fileName = System.IO.Path.GetFileNameWithoutExtension(imageInfo.ImageName);
+                        string fileExtention = System.IO.Path.GetExtension(imageInfo.ImageName);
+                        string subDirectoryName = System.IO.Path.Combine(outputFolder, albumentation.TypeName);
+                        if (!Directory.Exists(subDirectoryName))
+                        {
+                            System.IO.Directory.CreateDirectory(subDirectoryName);
+                        }
+                        string renameFile = $"{fileName}_{albumentation.TypeName}_{albumentation.Value.ToString("F02")}_{fileExtention}";
+                        Mat previewMat = Recipe(imageInfo.ImageName, albumentation.Value, albumentation.TypeName);
+                        previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
+                        n++;
+                    }
+                }
+                Dispatcher.Invoke(() =>
+                {
+                    Main_Grid.IsEnabled = true;
+                    ui_AlbumentationStart.IsEnabled = true;
+                    ui_AlbumentationStart.Content = "Albumentation Start";
+                });
+                _IsRunning = false;
+            });            
         }
 
 
@@ -532,6 +581,9 @@ namespace Data_AugTool
             _AlbumentationInfos = new List<AlbumentationInfo>(tempList);
         }
 
+        private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+        }
     }
 }
 
