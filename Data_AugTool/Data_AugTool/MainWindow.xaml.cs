@@ -62,7 +62,9 @@ namespace Data_AugTool
                 new AlbumentationInfo("Noise", 0.0, 100.0),
                 new AlbumentationInfo("Zoom In"),
                 new AlbumentationInfo("Sharpen", 0, 100),
-                new AlbumentationInfo("CLAHE",0, 100),
+                new AlbumentationInfo("CLAHE",0, 100),   
+              
+
 
             });
             foreach (var item in _AlbumentationInfos)
@@ -196,7 +198,8 @@ namespace Data_AugTool
             var selectedImageInfo = ListView1.SelectedItem as ImageInfo;
             if (selectedImageInfo == null)
                 return;
-
+           
+      
             var slider = McScroller as Slider;
             if (slider == null)
                 return;
@@ -287,9 +290,9 @@ namespace Data_AugTool
 
                         test.Apply(splitedMat[2], splitedMat[2]);
                         Cv2.Merge(splitedMat, previewMat);
-                        Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.HSV2RGB);
-
+                        Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.HSV2RGB);                      
                         break;
+                                      
 
                     default:
                         break;
@@ -480,6 +483,7 @@ namespace Data_AugTool
             });            
         }
         public class ImageInfo
+             
         {
             public int ImageNumber { get; set; }
             public string ImageName { get; set; }

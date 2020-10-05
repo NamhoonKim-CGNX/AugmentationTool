@@ -27,8 +27,8 @@ using System.Threading.Tasks;
             public bool IsUseValueMin { get; set; }
             public bool IsUseValueMax { get; set; }
             public double Value { get; set; } = 0;
-
             public AlbumentationInfo()
+
             {
                 TypeName = "unknown";
                 IsChecked = false;
