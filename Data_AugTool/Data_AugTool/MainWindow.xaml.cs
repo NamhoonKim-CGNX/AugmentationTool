@@ -33,14 +33,17 @@ using OpenCvSharp.XImgProc.Segmentation;
 
 namespace Data_AugTool
 {
-    /// <summary>
-    /// MainWindow.xaml에 대한 상호 작용 논리
-    /// </summary>
+
     public partial class MainWindow : MetroWindow
     {
 
         private Random _RandomGenerator = new Random();
         private List<AlbumentationInfo> _AlbumentationInfos = new List<AlbumentationInfo>();
+        private List<string> _AbTypename = new List<string>();
+        private List<double> _AbMin = new List<double>();
+        private List<double> _AbMAx = new List<double>();
+        private List<bool> _AbIsUseMin = new List<bool>();
+        private List<bool> _AbsUseMAx = new List<bool>();
         private ObservableCollection<AlbumentationInfo> _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
         private List<AlbumentationInfo> _PreviousAlbumentations = new List<AlbumentationInfo>();
         private string _OutputPath = null;
@@ -51,8 +54,11 @@ namespace Data_AugTool
             InitializeComponent();
 
             _AlbumentationInfos.AddRange(new List<AlbumentationInfo>()
+            /// <summary>
+            /// Each Algorithm range value, without normalization
+            /// </summary>
             {
-                new AlbumentationInfo("Contrast", 0.5, 5.0),
+                new AlbumentationInfo("Contrast", 0.5, 5.0, false, false),
                 new AlbumentationInfo("Brightness", 0, 100.0),
                 new AlbumentationInfo("Blur", 0, 100),
                 new AlbumentationInfo("Rotation" , 0, 360),
@@ -63,61 +69,71 @@ namespace Data_AugTool
                 new AlbumentationInfo("Zoom In"),
                 new AlbumentationInfo("Sharpen", 0, 100),
                 new AlbumentationInfo("CLAHE",0, 100),   
-              
-
-
             });
+
+            //Each algorithm brings information when Checkbox checked.
             foreach (var item in _AlbumentationInfos)
             {
                 item.IsChecked = true;
             }
-            AlbumentationListBox.ItemsSource = _AlbumentationInfos;
+            AlbumentationListBox.ItemsSource = _AlbumentationInfos; //Gets or sets the collection of ImgAug information in the list box.
         }
 
+        // Input : Image list view update 
         private void ListView1_SelectionChanged(object sender, SelectedCellsChangedEventArgs e)
         {
 
         }
 
         string[] files;
-
+        
         //<!-- Image listview & orginal Image Viewer with Input URL shown -->
-        private void btnLoadFromFile_Click(object sender, RoutedEventArgs e)
+        private void btnLoadFromFile_Click(object sender, RoutedEventArgs e) //Input URL load Button
         {
             string path;
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog(); //CommonOpenFileDialog = Creates a new instance of this class.
+            dialog.IsFolderPicker = true;//IsFolderPicker = Gets or sets a value that determines whether the user can select folders or files.
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+
+            /// CommonOpenFileDialog :
+            /// None = 0, Default value for enumeration, a dialog box should never return this value.
+            /// OK = 1, The dialog box return value is OK (usually sent from a button labeled OK or Save).
+            /// Cancel = 2, The dialog box return value is Cancel (usually sent from a button labeled Cancel).
+
+
             {
-                path = dialog.FileName; // 테스트용, 폴더 선택이 완료되면 선택된 폴더를 label에 출력 } 
-                if (!Directory.Exists(path))
+                path = dialog.FileName; 
+                if (!Directory.Exists(path)) //Directory = 이미 존재하지 않는 한 지정된 경로에 모든 디렉터리와 하위 디렉터리를 만듭니다.
                     return;
 
-                files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+                files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories); //지정된 디렉토리에서 지정된 검색 패턴과 일치하는 하위 디렉터리(해당 경로 포함)의 이름을 가져오고 선택적으로 하위 디렉터리 반환
 
                 textBox.Text = path;
 
-                string[] imageFormat = new string[] { "jpg", "jpeg", "png", "bmp", "tif", "tiff" };
-                var imageFiles = files.Where(file => imageFormat.Any(extension => file.ToLower().EndsWith(extension))).ToList();
+                string[] imageFormat = new string[] { "jpg", "jpeg", "png", "bmp", "tif", "tiff" }; //Image Format Type
+                var imageFiles = files.Where(file => imageFormat.Any(extension => file.ToLower().EndsWith(extension))).ToList();  // Any =  시퀀스의 모든 요소 조건을 충족 하는지 확인 합니다.
+                                                                                                                                  // ToLower =  이 문자열의 복사본을 소문자로 변환하여 반환합니다.
                 if (imageFiles.Count == 0)
                     return;
 
                 List<ImageInfo> items = new List<ImageInfo>();
                 for (int i = 0; i < imageFiles.Count(); i++)
                 {
-                    items.Add(new ImageInfo() { ImageNumber = i + 1, ImageName = imageFiles[i] });
+                    items.Add(new ImageInfo() { ImageNumber = i + 1, ImageName = imageFiles[i] }); 
                 }
                 ListView1.ItemsSource = items;
                 Dynamic2.Source = new BitmapImage(new Uri(items[0].ImageName));
             }
         }
 
-        private void btnLoadFromOutput_Click(object sender, RoutedEventArgs e)
-        {
+
+        private void btnLoadFromOutput_Click(object sender, RoutedEventArgs e)  //Ouput URL load Button
+        
+            {
             CommonOpenFileDialog openFileDialog = new CommonOpenFileDialog();
-            openFileDialog.IsFolderPicker = true;
-            openFileDialog.Multiselect = false;
+            openFileDialog.IsFolderPicker = true; //IsFolderPicker : Gets or sets a value that determines whether the user can select folders or files.
+            openFileDialog.Multiselect = false;   //Multiselect    : Gets or sets a value that determines whether the user can select more than one
 
             if (openFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
@@ -125,16 +141,14 @@ namespace Data_AugTool
             }
 
         }
-
         private void ListView1_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
         {
-            var selectedItem = ListView1.SelectedItem as ImageInfo;
+            var selectedItem = ListView1.SelectedItem as ImageInfo; 
             if (selectedItem == null)
                 return;
 
-            Dynamic2.Source = new BitmapImage(new Uri(selectedItem.ImageName));
-
-            UpdatePreviewImage();
+            Dynamic2.Source = new BitmapImage(new Uri(selectedItem.ImageName)); //Original Image 제공된 BitmapImage를 사용하여 Uri 클래스의 새 인스턴스를 초기화합니다.
+            UpdatePreviewImage(); //Orginal Image를 Preview 이미지로 변환하는 작업을 업데이트 시켜준다.
         }
 
         private void ListView1_KeyDown(object sender, KeyEventArgs e)
@@ -144,7 +158,7 @@ namespace Data_AugTool
                 var selectedItem = ListView1.SelectedItem as ImageInfo;
                 if (selectedItem == null)
                     return;
-                ListView1.BeginInit();
+                ListView1.BeginInit(); //System.Windows.Controls.ItemsControl 개체의 초기화가 시작되려고 함을 나타냅니다.
                 var items = ListView1.ItemsSource as List<ImageInfo>;
                 items.Remove(selectedItem);
                 TextBox test = new TextBox();
@@ -155,17 +169,14 @@ namespace Data_AugTool
             }
 
         }
-
-
-        private void AlbumentationListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void AlbumentationListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) // ListBox에 항목에 포함 된 목록을 가져옵니다.
         {
             McScroller.Value = 0;
-
             UpdatePreviewImage();
             UpdateSliderMinMax();
         }
 
-        private void UpdateSliderMinMax()
+        private void UpdateSliderMinMax() //리스트박스에서 Value값을 조절할 수 있는 min & max 조절을 위한 슬라이더
         {
             var listbox = AlbumentationListBox as ListBox;
             if (listbox == null)
@@ -182,10 +193,9 @@ namespace Data_AugTool
             slider.Minimum = listBoxSelectedItem.ValueMin;
             slider.Maximum = listBoxSelectedItem.ValueMax;
 
-            // slider.TickFrequency
         }
-
-        private void UpdatePreviewImage()
+ 
+        private void UpdatePreviewImage() //Orginal Image를 Preview 이미지로 변환하는 작업을 업데이트 시켜준다.
         {
             var listbox = AlbumentationListBox as ListBox;
             if (listbox == null)
@@ -198,7 +208,6 @@ namespace Data_AugTool
             var selectedImageInfo = ListView1.SelectedItem as ImageInfo;
             if (selectedImageInfo == null)
                 return;
-           
       
             var slider = McScroller as Slider;
             if (slider == null)
@@ -209,7 +218,7 @@ namespace Data_AugTool
                 return;
 
             ui_PreviewImage.Source = previewMat.ToBitmapSource();
-            previewMat.Dispose();
+            previewMat.Dispose(); //Resource 정리를 위한 Dispose 를 구현함.
         }
 
         private Mat Recipe(string path, double value, string option)
@@ -219,10 +228,9 @@ namespace Data_AugTool
                 Mat orgMat = new Mat(path);
                 Mat previewMat = new Mat();
 
-
                 #region //Algorithm
                 Mat matrix = new Mat();
-                switch (option)
+                switch (option) //
                 {
                     case "Contrast":
                         Cv2.AddWeighted(orgMat, value, orgMat, 0, 0, previewMat);
@@ -297,12 +305,11 @@ namespace Data_AugTool
                     default:
                         break;
                 }
-                matrix.Dispose();
+                matrix.Dispose(); 
                 orgMat.Dispose();
                 return previewMat;
                 #endregion
             }
-
             return null;
         }
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -314,8 +321,10 @@ namespace Data_AugTool
         {
 
         }
-
         private void McScroller_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        //RoutedPropertyChangedEventArgs = old Value:이벤트가 발생 하기 전의 속성의 이전 값
+        //                               = new Value:이벤트의 시간에 대한 속성의 현재 값
+
         {
             var selectedItem = AlbumentationListBox.SelectedItem as AlbumentationInfo;
             if (selectedItem == null)
@@ -335,16 +344,17 @@ namespace Data_AugTool
             UpdatePreviewImage();
             UpdateSliderValue(slider.Value);
         }
-        private void UpdateSliderValue(double value)
+        private void UpdateSliderValue(double value) //slider Value를 업데이트하게 해주는 항목
         {
-            ValueTextBox.Text = value.ToString("F");
+            ValueTextBox.Text = value.ToString("F");     //     대/소문자를 구분하거나 구분하지 않고 지정된 두 System.String 개체를 비교하여 정렬 순서에서 두 개체의 상대 위치를 나타내는 정수를
+                                                         //     반환합니다.
         }
 
         private void dataGrid1_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
-        private void ui_GenerateButton_Click(object sender, RoutedEventArgs e)
+        private void ui_GenerateButton_Click(object sender, RoutedEventArgs e) //Generate Click Button
         {
             if (_GeneratedAlbumentations == null)
                 _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
@@ -428,6 +438,8 @@ namespace Data_AugTool
                 return;
             }
             
+            //Albumentation Stop 시 Button & Progress Bar 가 멈추게 됌.
+
             _IfStop = false;
             ui_AlbumentationStart.Content = "Albumentation Stop";
             string outputFolder = textBox2.Text;
@@ -465,7 +477,7 @@ namespace Data_AugTool
                         string renameFile = $"{fileName}_{albumentation.TypeName}_{albumentation.Value.ToString("F02")}_{fileExtention}";
                         Mat previewMat = Recipe(imageInfo.ImageName, albumentation.Value, albumentation.TypeName);
 
-                        //예외처리 완료 2020-09-17
+
                         if (!(previewMat == null || previewMat.Width == 0 || previewMat.Height == 0))
                         {
                             previewMat.SaveImage(System.IO.Path.Combine(subDirectoryName, renameFile));
@@ -482,8 +494,7 @@ namespace Data_AugTool
                 _IsRunning = false;
             });            
         }
-        public class ImageInfo
-             
+        public class ImageInfo //List View with image file number & File name
         {
             public int ImageNumber { get; set; }
             public string ImageName { get; set; }
@@ -532,7 +543,7 @@ namespace Data_AugTool
                 McScroller.Value = value;
             }
         }
-        private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e)
+        private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e) //Values can be written in numbers
         {
 
         }
@@ -566,7 +577,7 @@ namespace Data_AugTool
             _AlbumentationInfos = new List<AlbumentationInfo>(tempList);
         }
 
-        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e) //CheckBox를 Check 하고 안하고의 판단 여부
         {
             var tempList = _AlbumentationInfos.ToList();
             foreach (var info in tempList)

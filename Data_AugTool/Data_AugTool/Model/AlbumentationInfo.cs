@@ -27,9 +27,9 @@ using System.Threading.Tasks;
             public bool IsUseValueMin { get; set; }
             public bool IsUseValueMax { get; set; }
             public double Value { get; set; } = 0;
-            public AlbumentationInfo()
+            public AlbumentationInfo() //list of Algorithm
 
-            {
+        {
                 TypeName = "unknown";
                 IsChecked = false;
                 ValueMin = 0;
