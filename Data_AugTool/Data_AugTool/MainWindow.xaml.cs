@@ -39,11 +39,12 @@ namespace Data_AugTool
 
         private Random _RandomGenerator = new Random();
         private List<AlbumentationInfo> _AlbumentationInfos = new List<AlbumentationInfo>();
-        private List<string> _AbTypename = new List<string>();
-        private List<double> _AbMin = new List<double>();
-        private List<double> _AbMAx = new List<double>();
-        private List<bool> _AbIsUseMin = new List<bool>();
-        private List<bool> _AbsUseMAx = new List<bool>();
+        //--AlbumentationInfo 가 없으면 아래와 같이 코드를 수동으로 작성해야함--//
+        //private List<string> _AbTypename = new List<string>();
+        //private List<double> _AbMin = new List<double>();
+        //private List<double> _AbMAx = new List<double>();
+        //private List<bool> _AbIsUseMin = new List<bool>();d
+        //private List<bool> _AbsUseMAx = new List<bool>();
         private ObservableCollection<AlbumentationInfo> _GeneratedAlbumentations = new ObservableCollection<AlbumentationInfo>();
         private List<AlbumentationInfo> _PreviousAlbumentations = new List<AlbumentationInfo>();
         private string _OutputPath = null;
@@ -58,7 +59,7 @@ namespace Data_AugTool
             /// Each Algorithm range value, without normalization
             /// </summary>
             {
-                new AlbumentationInfo("Contrast", 0.5, 5.0, false, false),
+                new AlbumentationInfo("Contrast", 0.5, 5.0),
                 new AlbumentationInfo("Brightness", 0, 100.0),
                 new AlbumentationInfo("Blur", 0, 100),
                 new AlbumentationInfo("Rotation" , 0, 360),
@@ -96,12 +97,7 @@ namespace Data_AugTool
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
 
-            /// CommonOpenFileDialog :
-            /// None = 0, Default value for enumeration, a dialog box should never return this value.
-            /// OK = 1, The dialog box return value is OK (usually sent from a button labeled OK or Save).
-            /// Cancel = 2, The dialog box return value is Cancel (usually sent from a button labeled Cancel).
-
-
+        
             {
                 path = dialog.FileName; 
                 if (!Directory.Exists(path)) //Directory = 이미 존재하지 않는 한 지정된 경로에 모든 디렉터리와 하위 디렉터리를 만듭니다.
@@ -230,36 +226,73 @@ namespace Data_AugTool
 
                 #region //Algorithm
                 Mat matrix = new Mat();
-                switch (option) //
+                switch (option) 
                 {
                     case "Contrast":
-                        Cv2.AddWeighted(orgMat, value, orgMat, 0, 0, previewMat);
+                        Cv2.AddWeighted(orgMat, value, orgMat, 0, 0, previewMat); 
                         break;
+                        //AddWeighted 함수를 이용해서 gamma 인자를 통해 가중치의 합에 추가적인 덧셈을 한꺼번에 수행 할 수 있다.
+                        //computes weighted sum of two arrays (dst = alpha*src1 + beta*src2 + gamma)
+                        //http://suyeongpark.me/archives/tag/opencv/page/2
+
                     case "Brightness":
                         Cv2.Add(orgMat, value, previewMat);
                         break;
+                        //Add 함수를 이용해서 영상의 덧셈을 수행 한다.
+                        //Add 연산에서는 자동으로 포화 연산을 수행한다. 
+                        //http://suyeongpark.me/archives/tag/opencv/page/2
+
+
                     case "Blur":
-                        Cv2.GaussianBlur(orgMat, previewMat, new OpenCvSharp.Size(9, 9), value, 1, BorderTypes.Default);
+                        Cv2.GaussianBlur(orgMat, previewMat, new OpenCvSharp.Size(9, 9), value, 1, BorderTypes.Default); //GaussianBlur
                         break;
+                        //영상이나 이미지를 흐림 효과를 주어 번지게 하기 위해 사용합니다. 해당 픽셀의 주변값들과 비교하고 계산하여 픽셀들의 색상 값을 재조정합니다.
+                        //각 필세마다 주변의 픽셀들의 값을 비교하고 계산하여 픽섹들의 값을 재조정 하게 됩니다. 단순 블러의 경우 파란 사격형 안에 평균값으로
+                        //붉은색 값을 재종하게 되고, 모든 픽셀들에 대하여 적용을 하게 된다.
+                        //https://076923.github.io/posts/C-opencv-13/
+
                     case "Rotation":
-                        matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), value, 1.0);
-                        Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Linear, BorderTypes.Replicate);
+                        matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), value, 1.0); // 2x3 회전 행렬 생성 함수 GetRotationMatrix2D
+                        Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Linear, BorderTypes.Replicate); 
                         break;
+                        //WarpAffine(원본 배열, 결과 배열, 행렬, 결과 배열의 크기) 결과 배열의 크기를 설정하는 이유는 회전 후, 원본 배열의 이미지 크기와 다를 수 있기 때문이다. 
+                        //Interpolation.Linear은 영상이나 이미지 보간을 위해 보편적으로 사용되는 보간법이다.
+                        //BoderTypes.Replicate 여백을 검은색으로 채우면서 회전이 되더라도 zeropadding 된다.
+                        //https://076923.github.io/posts/C-opencv-6/
+
                     case "Rotation90":
                         matrix = Cv2.GetRotationMatrix2D(new Point2f(orgMat.Width / 2, orgMat.Height / 2), 90, 1.0);
-                        Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Linear, BorderTypes.Reflect);
+                        Cv2.WarpAffine(orgMat, previewMat, matrix, new OpenCvSharp.Size(orgMat.Width, orgMat.Height), InterpolationFlags.Linear, BorderTypes.Reflect);                                                                                                   
                         break;
+                        //WarpAffine(원본 배열, 결과 배열, 행렬, 결과 배열의 크기) 결과 배열의 크기를 설정하는 이유는 회전 후, 원본 배열의 이미지 크기와 다를 수 있기 때문이다. 
+                        //Interpolation.Linear은 영상이나 이미지 보간을 위해 보편적으로 사용되는 보간법이다.
+                        //BoderTypes.Replicate 여백을 검은색으로 채우면서 회전이 되더라도 zeropadding 된다.
+                        //https://076923.github.io/posts/C-opencv-6/
+
+
                     case "Horizontal Flip":
-                        Cv2.Flip(orgMat, previewMat, FlipMode.Y);
+                        Cv2.Flip(orgMat, previewMat, FlipMode.Y); 
                         break;
+                        //Flip(원본 이미지, 결과 이미지, 대칭 축 색상 공간을 변환), 대칭 축(FlipMode)를 사용하여 대칭 진행
+                        //https://076923.github.io/posts/C-opencv-5/
+
+
                     case "Vertical Flip":
-                        Cv2.Flip(orgMat, previewMat, FlipMode.X);
+                        Cv2.Flip(orgMat, previewMat, FlipMode.X); 
                         break;
+                        //Flip(원본 이미지, 결과 이미지, 대칭 축 색상 공간을 변환), 대칭 축(FlipMode)를 사용하여 대칭 진행
+                        //https://076923.github.io/posts/C-opencv-5/
+
+
                     case "Noise":
                         matrix = new Mat(orgMat.Size(), MatType.CV_8UC3);
-                        Cv2.Randn(matrix, Scalar.All(0), Scalar.All(value));         //정규분포를 나타내는 이미지를 랜덤하게 생성
-                        Cv2.AddWeighted(orgMat, 1, matrix, 1, 0, previewMat);               //두 이미지를 가중치를 설정하여 합침
+                        Cv2.Randn(matrix, Scalar.All(0), Scalar.All(value));         
+                        Cv2.AddWeighted(orgMat, 1, matrix, 1, 0, previewMat);              
                         break;
+                        //Randn 정규 분포를 나타내는 이미지를 랜덤하게 생성하는 방법
+                        //AddWeighted 두 이미지를 가중치를 설정하여 합치면서 진행
+                        //
+
                     case "Zoom In":
                         //#1. Center만 확대
                         double width_param = (int)(0.8 * orgMat.Width); // 0.8이 배율 orgMat.Width이 원본이미지의 사이즈 // 나중에 0.8만 80%형식으로 바꿔서 파라미터로 빼야됨
@@ -275,6 +308,8 @@ namespace Data_AugTool
                         // 형변환       원본이미지 형변환      /       타겟이미지 배율    == 타겟이미지가 원본이미지 대비 몇배인가? 의 수식임
                         // (double) ( (double)orgMat.Height  /  (double)height_param)
                         break;
+
+
                     case "Sharpen":
                         float filterBase = -1f;
                         float filterCenter = filterBase * -9;
@@ -284,6 +319,10 @@ namespace Data_AugTool
                         Mat kernel = new Mat(3, 3, MatType.CV_32F, data);
                         Cv2.Filter2D(orgMat, previewMat, orgMat.Type(), kernel);
                         break;
+                        //
+                        //
+                        //
+
                     // Contrast Limited Adapative Histogram Equalization
                     case "CLAHE":
                         CLAHE test = Cv2.CreateCLAHE();
@@ -301,12 +340,15 @@ namespace Data_AugTool
                         Cv2.CvtColor(previewMat, previewMat, ColorConversionCodes.HSV2RGB);                      
                         break;
                                       
+                        //
+                        //
+                        //
 
                     default:
                         break;
                 }
-                matrix.Dispose(); 
-                orgMat.Dispose();
+                matrix.Dispose(); //이미지의 메모리 할당을 해제 합니다.
+                orgMat.Dispose(); //이미지의 메모리 할당을 해제 합니다.
                 return previewMat;
                 #endregion
             }
@@ -322,8 +364,7 @@ namespace Data_AugTool
 
         }
         private void McScroller_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        //RoutedPropertyChangedEventArgs = old Value:이벤트가 발생 하기 전의 속성의 이전 값
-        //                               = new Value:이벤트의 시간에 대한 속성의 현재 값
+       
 
         {
             var selectedItem = AlbumentationListBox.SelectedItem as AlbumentationInfo;
